@@ -9,8 +9,9 @@
       "target": "ES5",
       "module": "ES6",
       "removeComments": true,
+      "outDir": "tempBuild",
       "declaration": true,
-      "outDir": "dist"
+      "declarationDir": "dist"
    },
    "include": [
       "src/**/*"

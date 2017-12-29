@@ -32,7 +32,7 @@ export type UniFunction = (x: number) => number;
 * @return
 *    A function which interpolates the data set.
 */
-export function CreateAkimaSplineInterpolator(xvals: number[], yvals: number[]) : UniFunction {
+export function createAkimaSplineInterpolator(xvals: number[], yvals: number[]) : UniFunction {
 
    const MINIMUM_NUMBER_POINTS = 5;                        // The minimum number of points that are needed to compute the function.
    const n = xvals.length;

@@ -1,2 +1,5 @@
 $$BackupControl.txt
+build.bat
 dist
+tempBuild
+todo.txt

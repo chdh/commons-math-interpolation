@@ -4,6 +4,7 @@
    "description": "A partial port of the Apache Commons Math Interpolation package, including Akima cubic spline interpolation.",
    "types": "dist/CommonsMathInterpolation.d.ts",
    "main": "dist/CommonsMathInterpolation.js",
+   "module": "dist/CommonsMathInterpolation.mjs",
    "keywords": ["math", "interpolation", "akima", "cubic spline", "apache commons math"],
    "license": "MIT",
    "homepage": "http://www.source-code.biz/snippets/typescript/akima",
@@ -11,8 +12,12 @@
    "contributors": [
       {"name": "Christian d'Heureuse", "email": "chdh@inventec.ch"}
    ],
+   "scripts": {
+      "build": "tsc && rollup -c"
+   },
    "files": [
       "dist/CommonsMathInterpolation.d.ts",
-      "dist/CommonsMathInterpolation.js"
+      "dist/CommonsMathInterpolation.js",
+      "dist/CommonsMathInterpolation.mjs"
    ]
 }
