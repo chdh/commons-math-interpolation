@@ -1,5 +1,7 @@
 $$BackupControl.txt
 build.bat
 dist
+node_modules
+package-lock.json
 tempBuild
 todo.txt

@@ -6,7 +6,7 @@ export default {
          format: "cjs"
       },
       {
-         file: "dist/CommonsMathInterpolation.mjs",
+         file: "dist/CommonsMathInterpolation.mjs",      // for a single module this has the same effect as copying *.js to *.mjs
          format: "es"
       }
    ]

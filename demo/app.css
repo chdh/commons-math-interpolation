@@ -1,0 +1,41 @@
+body {
+   font-family: Arial, sans-serif;
+   font-size: 14px; }
+
+.hidden {
+   display: none; }
+
+#functionCurveEditor {
+   display: block;
+   width: 800px;
+   height: 500px;
+   border: 1px solid black;
+   margin-top: 5px;
+   outline: none; }
+
+div.buttons {
+   color: #07C;
+   cursor: pointer;
+   margin-top: 5px;
+   font-size: 12px; }
+
+#helpText {
+   background-color: #FEFAE2;
+   border: 1px solid #F3EED5;
+   padding: 3px;
+   margin-top: 8px;
+   margin-bottom: 20px;
+   width: 550px; }
+
+table.functionCurveEditorHelp {
+   border-collapse: collapse; }
+
+table.functionCurveEditorHelp td {
+   padding: 3px;
+   vertical-align: top;
+   border-bottom: 1px solid #eee; }
+table.functionCurveEditorHelp tr:last-child td {
+   border-bottom: none; }
+
+.functionCurveEditorHelpCol1 {
+   width: 220px; }
