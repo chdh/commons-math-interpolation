@@ -282,7 +282,7 @@ export function createCubicSplineInterpolator(x: Float64Array, y: Float64Array) 
 export function createLinearInterpolator(x: Float64Array, y: Float64Array) : UniFunction {
 
    if (x.length != y.length) {
-      throw new Error("Dimension msmatch.");
+      throw new Error("Dimension mismatch.");
    }
 
    if (x.length < 2) {
@@ -309,6 +309,61 @@ export function createLinearInterpolator(x: Float64Array, y: Float64Array) : Uni
    }
 
    return createPolynomialSplineFunction(x, polynomials);
+}
+
+//--- Nearest neighbor ---------------------------------------------------------
+
+/**
+* Returns a nearest neighbor interpolating function for a data set.
+*
+* @param xvals
+*    The arguments for the interpolation points.
+* @param yvals
+*    The values for the interpolation points.
+* @return
+*    A function which interpolates the data set.
+*/
+export function createNearestNeighborInterpolator(xvals: Float64Array, yvals: Float64Array) : UniFunction {
+
+   const xvals2 = xvals.slice();                           // clone to break dependency on values passed from outside of this module
+   const yvals2 = yvals.slice();                           // clone to break dependency on values passed from outside of this module
+
+   const n = xvals2.length;
+
+   if (n != yvals2.length) {
+      throw new Error("Dimension mismatch for xvals and yvals.");
+   }
+
+   if (n == 0) {
+      return function (_x: number) : number {
+         return NaN;
+      };
+   }
+
+   if (n == 1) {
+      return function (_x: number) : number {
+         return yvals2[0];
+      };
+   }
+
+   MathArrays_checkOrder(xvals2);
+
+   return function(x: number) : number {                   // nearest neighbor interpolator for n >= 2
+      let i = Arrays_binarySearch(xvals2, x);
+      if (i >= 0) {                                        // exact knot x found
+         return yvals2[i];                                 // return y value of that knot
+      }
+      i = -i - 1;                                          // logical position of x in xvals array
+      if (i == 0) {                                        // x is lower than x value of first knot
+         return yvals2[0];                                 // return y value of first knot
+      }
+      if (i >= n) {                                        // x is higher than x value of last knot
+         return yvals2[n - 1];                             // return y value of last knot
+      }
+      const d = x - xvals2[i - 1];                         // distance of x from left knot
+      const w = xvals2[i] - xvals2[i - 1];                 // x distance between neighboring knots
+      return (d + d < w) ? yvals2[i - 1] : yvals2[i];      // return y value of left or right knot
+   };
 }
 
 //------------------------------------------------------------------------------
@@ -378,7 +433,7 @@ function createPolynomialSplineFunction(knots: Float64Array, polynomials: UniFun
 //------------------------------------------------------------------------------
 
 /**
-* Construct and returns a polynomial function with the given coefficients.
+* Constructs and returns a polynomial function with the given coefficients.
 *
 * The first element of the coefficients array is the constant term. Higher
 * degree coefficients follow in sequence. The degree of the resulting
@@ -428,6 +483,12 @@ function MathArrays_checkOrder(val: Float64Array) {
 }
 
 // Corresponds to java.util.Arrays.binarySearch().
+// Returns the index of the search key, if it is contained in the array.
+// Otherwise it returns -(insertionPoint + 1).
+// The insertion point is defined as the point at which the key would be
+// inserted into the array: the index of the first element greater than
+// the key, or a.length if all elements in the array are less than the
+// specified key.
 function Arrays_binarySearch(a: Float64Array, key: number) : number {
    let low = 0;
    let high = a.length - 1;
@@ -447,5 +508,5 @@ function Arrays_binarySearch(a: Float64Array, key: number) : number {
          throw new Error("Invalid number encountered in binary search.");
       }
    }
-   return -(low + 1);                                      // key not found.
+   return -(low + 1);                                      // key not found
 }
