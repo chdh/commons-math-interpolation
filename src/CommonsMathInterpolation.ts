@@ -32,7 +32,7 @@ export type UniFunction = (x: number) => number;
 * @return
 *    A function which interpolates the data set.
 */
-export function createAkimaSplineInterpolator(xvals: number[], yvals: number[]) : UniFunction {
+export function createAkimaSplineInterpolator(xvals: Float64Array, yvals: Float64Array) : UniFunction {
 
    const MINIMUM_NUMBER_POINTS = 5;                        // The minimum number of points that are needed to compute the function.
    const n = xvals.length;
@@ -49,8 +49,8 @@ export function createAkimaSplineInterpolator(xvals: number[], yvals: number[]) 
 
    const numberOfDiffAndWeightElements = n - 1;
 
-   const differences: number[] = Array(numberOfDiffAndWeightElements);
-   const weights: number[] = Array(numberOfDiffAndWeightElements);
+   const differences = new Float64Array(numberOfDiffAndWeightElements);
+   const weights = new Float64Array(numberOfDiffAndWeightElements);
 
    for (let i = 0; i < differences.length; i++) {
       differences[i] = (yvals[i + 1] - yvals[i]) / (xvals[i + 1] - xvals[i]);
@@ -61,7 +61,7 @@ export function createAkimaSplineInterpolator(xvals: number[], yvals: number[]) 
    }
 
    // Prepare Hermite interpolation scheme.
-   const firstDerivatives: number[] = Array(n);
+   const firstDerivatives = new Float64Array(n);
 
    for (let i = 2; i < n - 2; i++) {
       const wP = weights[i + 1];
@@ -104,7 +104,7 @@ export function createAkimaSplineInterpolator(xvals: number[], yvals: number[]) 
 * @return
 *    The derivative.
 */
-function differentiateThreePoint(xvals: number[], yvals: number[],
+function differentiateThreePoint(xvals: Float64Array, yvals: Float64Array,
       indexOfDifferentiation: number, indexOfFirstSample: number,
       indexOfSecondsample: number, indexOfThirdSample: number) : number {
 
@@ -136,7 +136,7 @@ function differentiateThreePoint(xvals: number[], yvals: number[],
 * @return
 *    A polynomial function that fits the function.
 */
-function interpolateHermiteSorted(xvals: number[], yvals: number[], firstDerivatives: number[]) : UniFunction {
+function interpolateHermiteSorted(xvals: Float64Array, yvals: Float64Array, firstDerivatives: Float64Array) : UniFunction {
 
    const minimumLength = 2;
    const n = xvals.length;
@@ -150,7 +150,7 @@ function interpolateHermiteSorted(xvals: number[], yvals: number[], firstDerivat
    }
 
    const polynomials: UniFunction[] = Array(n - 1);
-   const coefficients: number[] = Array(4);
+   const coefficients = new Float64Array(4);
 
    for (let i = 0; i < n - 1; i++) {
        const w = xvals[i + 1] - xvals[i];
@@ -207,7 +207,7 @@ function interpolateHermiteSorted(xvals: number[], yvals: number[], firstDerivat
 * @return
 *    A function which interpolates the data set.
 */
-export function createCubicSplineInterpolator(x: number[], y: number[]) : UniFunction {
+export function createCubicSplineInterpolator(x: Float64Array, y: Float64Array) : UniFunction {
 
    if (x.length != y.length) {
       throw new Error("Dimension mismatch.");
@@ -223,13 +223,13 @@ export function createCubicSplineInterpolator(x: number[], y: number[]) : UniFun
    MathArrays_checkOrder(x);
 
    // Differences between knot points
-   const h: number[] = Array(n);
+   const h = new Float64Array(n);
    for (let i = 0; i < n; i++) {
       h[i] = x[i + 1] - x[i];
    }
 
-   const mu: number[] = Array(n);
-   const z:  number[] = Array(n + 1);
+   const mu = new Float64Array(n);
+   const z = new Float64Array(n + 1);
    mu[0] = 0;
    z[0] = 0;
    let g = 0;
@@ -241,9 +241,9 @@ export function createCubicSplineInterpolator(x: number[], y: number[]) : UniFun
    }
 
    // cubic spline coefficients. b is linear, c quadratic, d is cubic (original y's are constants)
-   const b: number[] = Array(n);
-   const c: number[] = Array(n + 1);
-   const d: number[] = Array(n);
+   const b = new Float64Array(n);
+   const c = new Float64Array(n + 1);
+   const d = new Float64Array(n);
 
    z[n] = 0;
    c[n] = 0;
@@ -255,7 +255,7 @@ export function createCubicSplineInterpolator(x: number[], y: number[]) : UniFun
    }
 
    const polynomials: UniFunction[] = Array(n);
-   const coefficients: number[] = Array(4);
+   const coefficients = new Float64Array(4);
    for (let i = 0; i < n; i++) {
       coefficients[0] = y[i];
       coefficients[1] = b[i];
@@ -279,7 +279,7 @@ export function createCubicSplineInterpolator(x: number[], y: number[]) : UniFun
 * @return
 *    A function which interpolates the data set.
 */
-export function createLinearInterpolator(x: number[], y: number[]) : UniFunction {
+export function createLinearInterpolator(x: Float64Array, y: Float64Array) : UniFunction {
 
    if (x.length != y.length) {
       throw new Error("Dimension msmatch.");
@@ -295,13 +295,13 @@ export function createLinearInterpolator(x: number[], y: number[]) : UniFunction
    MathArrays_checkOrder(x);
 
    // Slope of the lines between the datapoints.
-   const m: number[] = Array(n);
+   const m = new Float64Array(n);
    for (let i = 0; i < n; i++) {
       m[i] = (y[i + 1] - y[i]) / (x[i + 1] - x[i]);
    }
 
    const polynomials: UniFunction[] = Array(n);
-   const coefficients: number[] = Array(2);
+   const coefficients = new Float64Array(2);
    for (let i = 0; i < n; i++) {
       coefficients[0] = y[i];
       coefficients[1] = m[i];
@@ -356,7 +356,7 @@ export function createLinearInterpolator(x: number[], y: number[]) : UniFunction
 * @return
 *    The polynomial spline function.
 */
-function createPolynomialSplineFunction(knots: number[], polynomials: UniFunction[]) : UniFunction {
+function createPolynomialSplineFunction(knots: Float64Array, polynomials: UniFunction[]) : UniFunction {
    const knots2 = knots.slice();                           // clone to break dependency on values passed from outside of this module
    if (knots2.length < 2) {
       throw new Error("Not enough knots.");
@@ -394,7 +394,7 @@ function createPolynomialSplineFunction(knots: number[], polynomials: UniFunctio
 * @return
 *    The polynomial function.
 */
-function createPolynomialFunction(c: number[]) : UniFunction {
+function createPolynomialFunction(c: Float64Array) : UniFunction {
    const c2 = c.slice();                                   // clone to break dependency on passed array
    let n = c2.length;
    if (n == 0) {
@@ -416,7 +416,7 @@ function createPolynomialFunction(c: number[]) : UniFunction {
 
 // Checks that the given array is sorted in strictly increasing order.
 // Corresponds to org.apache.commons.math3.util.MathArrays.checkOrder().
-function MathArrays_checkOrder(val: number[]) {
+function MathArrays_checkOrder(val: Float64Array) {
    let previous = val[0];
    const max = val.length;
    for (let index = 1; index < max; index++) {
@@ -428,7 +428,7 @@ function MathArrays_checkOrder(val: number[]) {
 }
 
 // Corresponds to java.util.Arrays.binarySearch().
-function Arrays_binarySearch(a: number[], key: number) : number {
+function Arrays_binarySearch(a: Float64Array, key: number) : number {
    let low = 0;
    let high = a.length - 1;
    while (low <= high) {

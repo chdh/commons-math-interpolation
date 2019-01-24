@@ -1,6 +1,6 @@
 {
    "name": "commons-math-interpolation",
-   "version": "1.0.1",
+   "version": "2.0.0",
    "description": "A partial port of the Apache Commons Math Interpolation package, including Akima cubic spline interpolation.",
    "types": "dist/CommonsMathInterpolation.d.ts",
    "main": "dist/CommonsMathInterpolation.js",
