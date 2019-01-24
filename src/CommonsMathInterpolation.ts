@@ -64,12 +64,12 @@ export function createAkimaSplineInterpolator(xvals: number[], yvals: number[]) 
    const firstDerivatives: number[] = Array(n);
 
    for (let i = 2; i < n - 2; i++) {
-      let wP = weights[i + 1];
-      let wM = weights[i - 1];
+      const wP = weights[i + 1];
+      const wM = weights[i - 1];
       if (Math.abs(wP) < EPSILON && Math.abs(wM) < EPSILON) {
-         let xv  = xvals[i];
-         let xvP = xvals[i + 1];
-         let xvM = xvals[i - 1];
+         const xv  = xvals[i];
+         const xvP = xvals[i + 1];
+         const xvM = xvals[i - 1];
          firstDerivatives[i] = (((xvP - xv) * differences[i - 1]) + ((xv - xvM) * differences[i])) / (xvP - xvM);
       } else {
          firstDerivatives[i] = ((wP * differences[i - 1]) + (wM * differences[i])) / (wP + wM);
@@ -153,14 +153,14 @@ function interpolateHermiteSorted(xvals: number[], yvals: number[], firstDerivat
    const coefficients: number[] = Array(4);
 
    for (let i = 0; i < n - 1; i++) {
-       let w = xvals[i + 1] - xvals[i];
-       let w2 = w * w;
+       const w = xvals[i + 1] - xvals[i];
+       const w2 = w * w;
 
-       let yv  = yvals[i];
-       let yvP = yvals[i + 1];
+       const yv  = yvals[i];
+       const yvP = yvals[i + 1];
 
-       let fd  = firstDerivatives[i];
-       let fdP = firstDerivatives[i + 1];
+       const fd  = firstDerivatives[i];
+       const fdP = firstDerivatives[i + 1];
 
        coefficients[0] = yv;
        coefficients[1] = firstDerivatives[i];
@@ -295,7 +295,7 @@ export function createLinearInterpolator(x: number[], y: number[]) : UniFunction
    MathArrays_checkOrder(x);
 
    // Slope of the lines between the datapoints.
-   let m: number[] = Array(n);
+   const m: number[] = Array(n);
    for (let i = 0; i < n; i++) {
       m[i] = (y[i + 1] - y[i]) / (x[i + 1] - x[i]);
    }
@@ -357,22 +357,22 @@ export function createLinearInterpolator(x: number[], y: number[]) : UniFunction
 *    The polynomial spline function.
 */
 function createPolynomialSplineFunction(knots: number[], polynomials: UniFunction[]) : UniFunction {
-   knots = knots.slice();                                  // clone to break dependency on values passed from outside of this module
-   if (knots.length < 2) {
+   const knots2 = knots.slice();                           // clone to break dependency on values passed from outside of this module
+   if (knots2.length < 2) {
       throw new Error("Not enough knots.");
    }
-   if (knots.length - 1 != polynomials.length) {
+   if (knots2.length - 1 != polynomials.length) {
       throw new Error("Dimension mismatch.");
    }
-   MathArrays_checkOrder(knots);
+   MathArrays_checkOrder(knots2);
    return function(x: number) : number {
-      let i = Arrays_binarySearch(knots, x);
+      let i = Arrays_binarySearch(knots2, x);
       if (i < 0) {
          i = -i - 2;
       }
       i = Math.max(0, Math.min(i, polynomials.length - 1));
-      return polynomials[i](x - knots[i]);
-   }
+      return polynomials[i](x - knots2[i]);
+   };
 }
 
 //------------------------------------------------------------------------------
@@ -395,21 +395,21 @@ function createPolynomialSplineFunction(knots: number[], polynomials: UniFunctio
 *    The polynomial function.
 */
 function createPolynomialFunction(c: number[]) : UniFunction {
-   c = c.slice();                                          // clone to break dependency on passed array
-   let n = c.length;
+   const c2 = c.slice();                                   // clone to break dependency on passed array
+   let n = c2.length;
    if (n == 0) {
       throw new Error("Empty polynomials coefficients array");
    }
-   while (n > 1 && c[n - 1] == 0) {
+   while (n > 1 && c2[n - 1] == 0) {
       n--;
    }
    return function (x: number) : number {
-      let v = c[n - 1];
+      let v = c2[n - 1];
       for (let i = n - 2; i >= 0; i--) {
-         v = x * v + c[i];
+         v = x * v + c2[i];
       }
       return v;
-   }
+   };
 }
 
 //--- Utility functions --------------------------------------------------------
@@ -434,14 +434,18 @@ function Arrays_binarySearch(a: number[], key: number) : number {
    while (low <= high) {
       const mid = (low + high) >>> 1;
       const midVal = a[mid];
-      if (midVal < key)
+      if (midVal < key) {
          low = mid + 1;
-      else if (midVal > key)
+      }
+      else if (midVal > key) {
          high = mid - 1;
-      else if (midVal == key)
+      }
+      else if (midVal == key) {
          return mid;
-      else                                                 // values might be NaN
+      }
+      else {                                               // values might be NaN
          throw new Error("Invalid number encountered in binary search.");
+      }
    }
    return -(low + 1);                                      // key not found.
 }
