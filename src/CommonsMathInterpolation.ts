@@ -208,52 +208,8 @@ function interpolateHermiteSorted(xvals: Float64Array, yvals: Float64Array, firs
 *    A function which interpolates the data set.
 */
 export function createCubicSplineInterpolator(x: Float64Array, y: Float64Array) : UniFunction {
-
-   if (x.length != y.length) {
-      throw new Error("Dimension mismatch.");
-   }
-
-   if (x.length < 3) {
-      throw new Error("Number of points is too small.");
-   }
-
-   // Number of intervals. The number of data points is n + 1.
+   const [b, c, d] = computeCubicPolyCoefficients(x, y);
    const n = x.length - 1;
-
-   MathArrays_checkOrder(x);
-
-   // Differences between knot points
-   const h = new Float64Array(n);
-   for (let i = 0; i < n; i++) {
-      h[i] = x[i + 1] - x[i];
-   }
-
-   const mu = new Float64Array(n);
-   const z = new Float64Array(n + 1);
-   mu[0] = 0;
-   z[0] = 0;
-   let g = 0;
-   for (let i = 1; i < n; i++) {
-      g = 2 * (x[i+1] - x[i - 1]) - h[i - 1] * mu[i -1];
-      mu[i] = h[i] / g;
-      z[i] = (3 * (y[i + 1] * h[i - 1] - y[i] * (x[i + 1] - x[i - 1])+ y[i - 1] * h[i]) /
-             (h[i - 1] * h[i]) - h[i - 1] * z[i - 1]) / g;
-   }
-
-   // cubic spline coefficients. b is linear, c quadratic, d is cubic (original y's are constants)
-   const b = new Float64Array(n);
-   const c = new Float64Array(n + 1);
-   const d = new Float64Array(n);
-
-   z[n] = 0;
-   c[n] = 0;
-
-   for (let j = n - 1; j >= 0; j--) {
-      c[j] = z[j] - mu[j] * c[j + 1];
-      b[j] = (y[j + 1] - y[j]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;
-      d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
-   }
-
    const polynomials: UniFunction[] = Array(n);
    const coefficients = new Float64Array(4);
    for (let i = 0; i < n; i++) {
@@ -509,4 +465,88 @@ function Arrays_binarySearch(a: Float64Array, key: number) : number {
       }
    }
    return -(low + 1);                                      // key not found
+}
+
+
+//--- Cubic Active --------------------------------------------------
+
+/**
+* Same as Cubic above, only instead of passively returning a function we interpolate the
+* given points `xq` actively.
+*
+* @param x
+*    The arguments for the interpolation points.
+* @param y
+*    The values for the interpolation points.
+* @param xq
+*    The values for the query points.
+* @return
+*    Array of interpolated `yq` as in yq = f(xq)
+*/
+export function cubicSplineInterpolate(x: Float64Array, y: Float64Array, xq: Float64Array) {
+  const [b, c, d] = computeCubicPolyCoefficients(x, y);
+  const n = x.length - 1;
+
+  // sample arr is sparse array of sparse arrays
+  // sampleArr = [[xq0, xq1, empty × 10, xq12], empty x 3, [empty, xq2]]
+  let sampleArr : number[][] = []
+  for (let i = 0; i < xq.length; i++) {
+    let idx = Arrays_binarySearch(x, xq[i])
+    if (idx < 0) idx = -idx - 2;
+    idx = Math.max(0, Math.min(idx, n - 1));
+    if (!sampleArr[idx]) sampleArr[idx] = []
+    sampleArr[idx][i] = xq[i]
+  }
+
+  let results: number[] = []
+  let coefficients = new Float64Array(4);
+  sampleArr.forEach( (xqSubArr, i) => {
+    coefficients[0] = y[i];
+    coefficients[1] = b[i];
+    coefficients[2] = c[i];
+    coefficients[3] = d[i];
+    const poly = createPolynomialFunction(coefficients);
+    xqSubArr.forEach( (xq, i) => {
+      results[i] = poly(xq - x[i]);
+    })
+  })
+  return results
+}
+
+// Shared code between two cubic interpolation functions
+function computeCubicPolyCoefficients(x: Float64Array, y: Float64Array) {
+  if (x.length != y.length) {
+      throw new Error("Dimension mismatch.");
+  }
+  if (x.length < 3) {
+      throw new Error("Number of points is too small.");
+  }
+  var n = x.length - 1;
+  MathArrays_checkOrder(x);
+  var h = new Float64Array(n);
+  for (var i = 0; i < n; i++) {
+      h[i] = x[i + 1] - x[i];
+  }
+  var mu = new Float64Array(n);
+  var z = new Float64Array(n + 1);
+  mu[0] = 0;
+  z[0] = 0;
+  var g = 0;
+  for (var i = 1; i < n; i++) {
+      g = 2 * (x[i + 1] - x[i - 1]) - h[i - 1] * mu[i - 1];
+      mu[i] = h[i] / g;
+      z[i] = (3 * (y[i + 1] * h[i - 1] - y[i] * (x[i + 1] - x[i - 1]) + y[i - 1] * h[i]) /
+          (h[i - 1] * h[i]) - h[i - 1] * z[i - 1]) / g;
+  }
+  var b = new Float64Array(n);
+  var c = new Float64Array(n + 1);
+  var d = new Float64Array(n);
+  z[n] = 0;
+  c[n] = 0;
+  for (var j = n - 1; j >= 0; j--) {
+      c[j] = z[j] - mu[j] * c[j + 1];
+      b[j] = (y[j + 1] - y[j]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;
+      d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
+  }
+  return [b, c, d]
 }
