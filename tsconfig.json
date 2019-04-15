@@ -1,17 +1,17 @@
 {
    "compilerOptions": {
-      "strict": true,
-      "noImplicitReturns": true,
+      "declaration": true,
+      "declarationDir": "dist",
+      "lib": ["ES5"],
+      "module": "ES6",
       "noFallthroughCasesInSwitch": true,
+      "noImplicitReturns": true,
       "noUnusedLocals": true,
       "noUnusedParameters": true,
-      "lib": ["ES5"],
-      "target": "ES5",
-      "module": "ES6",
-      "removeComments": true,
       "outDir": "tempBuild",
-      "declaration": true,
-      "declarationDir": "dist"
+      "removeComments": true,
+      "strict": true,
+      "target": "ES5"
    },
    "include": [
       "src/**/*"

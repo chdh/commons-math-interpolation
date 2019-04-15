@@ -25,73 +25,82 @@ export type UniFunction = (x: number) => number;
 * x[0] < x[1] < ... < x[n-1].
 * The Akima algorithm requires that n >= 5.
 *
-* @param xvals
-*    The arguments for the interpolation points.
-* @param yvals
-*    The values for the interpolation points.
-* @return
-*    A function which interpolates the data set.
+* @param xVals
+*    The arguments of the interpolation points.
+* @param yVals
+*    The values of the interpolation points.
+* @returns
+*    A function which interpolates the dataset.
 */
-export function createAkimaSplineInterpolator(xvals: Float64Array, yvals: Float64Array) : UniFunction {
+export function createAkimaSplineInterpolator(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : UniFunction {
+   const segmentCoeffs = computeAkimaPolyCoefficients(xVals, yVals);
+   const xValsCopy = Float64Array.from(xVals);                       // clone to break dependency on passed values
+   return (x: number) => evaluatePolySegment(xValsCopy, segmentCoeffs, x);
+}
 
-   const MINIMUM_NUMBER_POINTS = 5;                        // The minimum number of points that are needed to compute the function.
-   const n = xvals.length;
-
-   if (n != yvals.length) {
-      throw new Error("Dimension mismatch for xvals and yvals.");
+/**
+* Computes the polynomial coefficients for the Akima cubic spline
+* interpolation of a dataset.
+*
+* @param xVals
+*    The arguments of the interpolation points.
+* @param yVals
+*    The values of the interpolation points.
+* @returns
+*    Polynomial coefficients of the segments.
+*/
+export function computeAkimaPolyCoefficients(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : Float64Array[] {
+   if (xVals.length != yVals.length) {
+      throw new Error("Dimension mismatch for xVals and yVals.");
    }
-
-   if (n < MINIMUM_NUMBER_POINTS) {
+   if (xVals.length < 5) {
       throw new Error("Number of points is too small.");
    }
+   MathArrays_checkOrder(xVals);
+   const n = xVals.length - 1;                                       // number of segments
 
-   MathArrays_checkOrder(xvals);
+   const differences = new Float64Array(n);
+   const weights = new Float64Array(n);
 
-   const numberOfDiffAndWeightElements = n - 1;
-
-   const differences = new Float64Array(numberOfDiffAndWeightElements);
-   const weights = new Float64Array(numberOfDiffAndWeightElements);
-
-   for (let i = 0; i < differences.length; i++) {
-      differences[i] = (yvals[i + 1] - yvals[i]) / (xvals[i + 1] - xvals[i]);
+   for (let i = 0; i < n; i++) {
+      differences[i] = (yVals[i + 1] - yVals[i]) / (xVals[i + 1] - xVals[i]);
    }
 
-   for (let i = 1; i < weights.length; i++) {
+   for (let i = 1; i < n; i++) {
       weights[i] = Math.abs(differences[i] - differences[i - 1]);
    }
 
    // Prepare Hermite interpolation scheme.
-   const firstDerivatives = new Float64Array(n);
+   const firstDerivatives = new Float64Array(n + 1);
 
-   for (let i = 2; i < n - 2; i++) {
+   for (let i = 2; i < n - 1; i++) {
       const wP = weights[i + 1];
       const wM = weights[i - 1];
       if (Math.abs(wP) < EPSILON && Math.abs(wM) < EPSILON) {
-         const xv  = xvals[i];
-         const xvP = xvals[i + 1];
-         const xvM = xvals[i - 1];
+         const xv  = xVals[i];
+         const xvP = xVals[i + 1];
+         const xvM = xVals[i - 1];
          firstDerivatives[i] = (((xvP - xv) * differences[i - 1]) + ((xv - xvM) * differences[i])) / (xvP - xvM);
       } else {
          firstDerivatives[i] = ((wP * differences[i - 1]) + (wM * differences[i])) / (wP + wM);
       }
    }
 
-   firstDerivatives[0]     = differentiateThreePoint(xvals, yvals, 0, 0, 1, 2);
-   firstDerivatives[1]     = differentiateThreePoint(xvals, yvals, 1, 0, 1, 2);
-   firstDerivatives[n - 2] = differentiateThreePoint(xvals, yvals, n - 2, n - 3, n - 2, n - 1);
-   firstDerivatives[n - 1] = differentiateThreePoint(xvals, yvals, n - 1, n - 3, n - 2, n - 1);
+   firstDerivatives[0]     = differentiateThreePoint(xVals, yVals, 0, 0, 1, 2);
+   firstDerivatives[1]     = differentiateThreePoint(xVals, yVals, 1, 0, 1, 2);
+   firstDerivatives[n - 1] = differentiateThreePoint(xVals, yVals, n - 1, n - 2, n - 1, n);
+   firstDerivatives[n]     = differentiateThreePoint(xVals, yVals, n    , n - 2, n - 1, n);
 
-   return interpolateHermiteSorted(xvals, yvals, firstDerivatives);
+   return computeHermitePolyCoefficients(xVals, yVals, firstDerivatives);
 }
 
 /**
 * Three point differentiation helper, modeled off of the same method in the
-* Math.NET CubicSpline class. This is used by both the Apache Math and the
-* Math.NET Akima Cubic Spline algorithms.
+* Math.NET CubicSpline class.
 *
-* @param xvals
+* @param xVals
 *    x values to calculate the numerical derivative with.
-* @param yvals
+* @param yVals
 *    y values to calculate the numerical derivative with.
 * @param indexOfDifferentiation
 *    Index of the elemnt we are calculating the derivative around.
@@ -101,20 +110,20 @@ export function createAkimaSplineInterpolator(xvals: Float64Array, yvals: Float6
 *    index of the second element to sample for the three point method.
 * @param indexOfThirdSample
 *    Index of the third element to sample for the three point method.
-* @return
+* @returns
 *    The derivative.
 */
-function differentiateThreePoint(xvals: Float64Array, yvals: Float64Array,
+function differentiateThreePoint(xVals: ArrayLike<number>, yVals: ArrayLike<number>,
       indexOfDifferentiation: number, indexOfFirstSample: number,
       indexOfSecondsample: number, indexOfThirdSample: number) : number {
 
-   const x0 = yvals[indexOfFirstSample];
-   const x1 = yvals[indexOfSecondsample];
-   const x2 = yvals[indexOfThirdSample];
+   const x0 = yVals[indexOfFirstSample];
+   const x1 = yVals[indexOfSecondsample];
+   const x2 = yVals[indexOfThirdSample];
 
-   const t  = xvals[indexOfDifferentiation] - xvals[indexOfFirstSample];
-   const t1 = xvals[indexOfSecondsample]    - xvals[indexOfFirstSample];
-   const t2 = xvals[indexOfThirdSample]     - xvals[indexOfFirstSample];
+   const t  = xVals[indexOfDifferentiation] - xVals[indexOfFirstSample];
+   const t1 = xVals[indexOfSecondsample]    - xVals[indexOfFirstSample];
+   const t2 = xVals[indexOfThirdSample]     - xVals[indexOfFirstSample];
 
    const a = (x2 - x0 - (t2 / t1 * (x1 - x0))) / (t2 * t2 - t1 * t2);
    const b = (x1 - x0 - a * t1 * t1) / t1;
@@ -123,71 +132,62 @@ function differentiateThreePoint(xvals: Float64Array, yvals: Float64Array,
 }
 
 /**
-* Creates a Hermite cubic spline interpolation from the set of (x,y) value
-* pairs and their derivatives. This is modeled off of the
-* InterpolateHermiteSorted method in the Math.NET CubicSpline class.
+* Computes the polynomial coefficients for the Hermite cubic spline interpolation
+* for a set of (x,y) value pairs and their derivatives. This is modeled off of
+* the InterpolateHermiteSorted method in the Math.NET CubicSpline class.
 *
-* @param xvals
+* @param xVals
 *    x values for interpolation.
-* @param yvals
+* @param yVals
 *    y values for interpolation.
 * @param firstDerivatives
 *    First derivative values of the function.
-* @return
-*    A polynomial function that fits the function.
+* @returns
+*    Polynomial coefficients of the segments.
 */
-function interpolateHermiteSorted(xvals: Float64Array, yvals: Float64Array, firstDerivatives: Float64Array) : UniFunction {
-
-   const minimumLength = 2;
-   const n = xvals.length;
-
-   if (n != yvals.length || n != firstDerivatives.length) {
+function computeHermitePolyCoefficients(xVals: ArrayLike<number>, yVals: ArrayLike<number>, firstDerivatives: ArrayLike<number>) : Float64Array[] {
+   if (xVals.length != yVals.length || xVals.length != firstDerivatives.length) {
       throw new Error("Dimension mismatch");
    }
-
-   if (n < minimumLength) {
+   if (xVals.length < 2) {
       throw new Error("Not enough points.");
    }
+   const n = xVals.length - 1;                                       // number of segments
 
-   const polynomials: UniFunction[] = Array(n - 1);
-   const coefficients = new Float64Array(4);
+   const segmentCoeffs = new Array(n);
+   for (let i = 0; i < n; i++) {
+      const w = xVals[i + 1] - xVals[i];
+      const w2 = w * w;
 
-   for (let i = 0; i < n - 1; i++) {
-       const w = xvals[i + 1] - xvals[i];
-       const w2 = w * w;
+      const yv  = yVals[i];
+      const yvP = yVals[i + 1];
 
-       const yv  = yvals[i];
-       const yvP = yvals[i + 1];
+      const fd  = firstDerivatives[i];
+      const fdP = firstDerivatives[i + 1];
 
-       const fd  = firstDerivatives[i];
-       const fdP = firstDerivatives[i + 1];
-
-       coefficients[0] = yv;
-       coefficients[1] = firstDerivatives[i];
-       coefficients[2] = (3 * (yvP - yv) / w - 2 * fd - fdP) / w;
-       coefficients[3] = (2 * (yv - yvP) / w + fd + fdP) / w2;
-       polynomials[i] = createPolynomialFunction(coefficients);
+      const coeffs = new Float64Array(4);
+      coeffs[0] = yv;
+      coeffs[1] = firstDerivatives[i];
+      coeffs[2] = (3 * (yvP - yv) / w - 2 * fd - fdP) / w;
+      coeffs[3] = (2 * (yv - yvP) / w + fd + fdP) / w2;
+      segmentCoeffs[i] = trimPoly(coeffs);
    }
-
-   return createPolynomialSplineFunction(xvals, polynomials);
+   return segmentCoeffs;
 }
 
 //--- Cubic --------------------------------------------------------------------
 
 /**
 * Returns a function that computes a natural (also known as "free", "unclamped")
-* cubic spline interpolation for the data set.
+* cubic spline interpolation for the dataset.
 *
 * Returns a polynomial spline function consisting of n cubic polynomials,
 * defined over the subintervals determined by the x values,
 * x[0] < x[1] < ... < x[n-1]. The x values are referred to as "knot points".
 *
-* The value of the polynomial spline function at a point x that is greater
-* than or equal to the smallest knot point and strictly less than the largest
-* knot point is computed by finding the subinterval to which x belongs and
-* computing the value of the corresponding polynomial at x - x[i] where
-* i is the index of the subinterval.
-* See createPolynomialSplineFunction() for more details.
+* The value of the polynomial spline function at a point x is computed by
+* finding the segment to which x belongs and computing the value of the
+* corresponding polynomial at x - x[i] where i is the index of the segment.
 *
 * The interpolating polynomials satisfy:
 *  1. The value of the polynomial spline function at each of the input x values
@@ -200,47 +200,57 @@ function interpolateHermiteSorted(xvals: Float64Array, yvals: Float64Array, firs
 * R.L. Burden, J.D. Faires, Numerical Analysis, 4th Ed., 1989, PWS-Kent,
 * ISBN 0-53491-585-X, pp 126-131.
 *
-* @param x
-*    The arguments for the interpolation points.
-* @param y
-*    The values for the interpolation points.
-* @return
-*    A function which interpolates the data set.
+* @param xVals
+*    The arguments of the interpolation points.
+* @param yVals
+*    The values of the interpolation points.
+* @returns
+*    A function which interpolates the dataset.
 */
-export function createCubicSplineInterpolator(x: Float64Array, y: Float64Array) : UniFunction {
+export function createCubicSplineInterpolator(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : UniFunction {
+   const segmentCoeffs = computeCubicPolyCoefficients(xVals, yVals);
+   const xValsCopy = Float64Array.from(xVals);                       // clone to break dependency on passed values
+   return (x: number) => evaluatePolySegment(xValsCopy, segmentCoeffs, x);
+}
 
-   if (x.length != y.length) {
+/**
+* Computes the polynomial coefficients for the natural cubic spline
+* interpolation of a dataset.
+*
+* @param xVals
+*    The arguments of the interpolation points.
+* @param yVals
+*    The values of the interpolation points.
+* @returns
+*    Polynomial coefficients of the segments.
+*/
+export function computeCubicPolyCoefficients(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : Float64Array[] {
+   if (xVals.length != yVals.length) {
       throw new Error("Dimension mismatch.");
    }
-
-   if (x.length < 3) {
+   if (xVals.length < 3) {
       throw new Error("Number of points is too small.");
    }
+   MathArrays_checkOrder(xVals);
+   const n = xVals.length - 1;                                       // number of segments
 
-   // Number of intervals. The number of data points is n + 1.
-   const n = x.length - 1;
-
-   MathArrays_checkOrder(x);
-
-   // Differences between knot points
-   const h = new Float64Array(n);
+   const h = new Float64Array(n);                                    // delta x values
    for (let i = 0; i < n; i++) {
-      h[i] = x[i + 1] - x[i];
+      h[i] = xVals[i + 1] - xVals[i];
    }
 
    const mu = new Float64Array(n);
    const z = new Float64Array(n + 1);
    mu[0] = 0;
    z[0] = 0;
-   let g = 0;
    for (let i = 1; i < n; i++) {
-      g = 2 * (x[i+1] - x[i - 1]) - h[i - 1] * mu[i -1];
+      const g = 2 * (xVals[i + 1] - xVals[i - 1]) - h[i - 1] * mu[i - 1];
       mu[i] = h[i] / g;
-      z[i] = (3 * (y[i + 1] * h[i - 1] - y[i] * (x[i + 1] - x[i - 1])+ y[i - 1] * h[i]) /
+      z[i] = (3 * (yVals[i + 1] * h[i - 1] - yVals[i] * (xVals[i + 1] - xVals[i - 1]) + yVals[i - 1] * h[i]) /
              (h[i - 1] * h[i]) - h[i - 1] * z[i - 1]) / g;
    }
 
-   // cubic spline coefficients. b is linear, c quadratic, d is cubic (original y's are constants)
+   // cubic spline coefficients. b is linear, c quadratic, d is cubic
    const b = new Float64Array(n);
    const c = new Float64Array(n + 1);
    const d = new Float64Array(n);
@@ -248,237 +258,173 @@ export function createCubicSplineInterpolator(x: Float64Array, y: Float64Array) 
    z[n] = 0;
    c[n] = 0;
 
-   for (let j = n - 1; j >= 0; j--) {
-      c[j] = z[j] - mu[j] * c[j + 1];
-      b[j] = (y[j + 1] - y[j]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;
-      d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
+   for (let i = n - 1; i >= 0; i--) {
+      const dx = h[i];
+      const dy = yVals[i + 1] - yVals[i];
+      c[i] = z[i] - mu[i] * c[i + 1];
+      b[i] = dy / dx - dx * (c[i + 1] + 2 * c[i]) / 3;
+      d[i] = (c[i + 1] - c[i]) / (3 * dx);
    }
 
-   const polynomials: UniFunction[] = Array(n);
-   const coefficients = new Float64Array(4);
+   const segmentCoeffs = new Array(n);
    for (let i = 0; i < n; i++) {
-      coefficients[0] = y[i];
-      coefficients[1] = b[i];
-      coefficients[2] = c[i];
-      coefficients[3] = d[i];
-      polynomials[i] = createPolynomialFunction(coefficients);
+      const coeffs = new Float64Array(4);
+      coeffs[0] = yVals[i];
+      coeffs[1] = b[i];
+      coeffs[2] = c[i];
+      coeffs[3] = d[i];
+      segmentCoeffs[i] = trimPoly(coeffs);
    }
-
-   return createPolynomialSplineFunction(x, polynomials);
+   return segmentCoeffs;
 }
 
 //--- Linear -------------------------------------------------------------------
 
 /**
-* Returns a linear interpolating function for a data set.
+* Returns a linear interpolating function for a dataset.
 *
-* @param x
-*    The arguments for the interpolation points.
-* @param y
-*    The values for the interpolation points.
-* @return
-*    A function which interpolates the data set.
+* @param xVals
+*    The arguments of the interpolation points.
+* @param yVals
+*    The values of the interpolation points.
+* @returns
+*    A function which interpolates the dataset.
 */
-export function createLinearInterpolator(x: Float64Array, y: Float64Array) : UniFunction {
+export function createLinearInterpolator(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : UniFunction {
+   const segmentCoeffs = computeLinearPolyCoefficients(xVals, yVals);
+   const xValsCopy = Float64Array.from(xVals);                       // clone to break dependency on passed values
+   return (x: number) => evaluatePolySegment(xValsCopy, segmentCoeffs, x);
+}
 
-   if (x.length != y.length) {
+/**
+* Computes the polynomial coefficients for the linear interpolation of a dataset.
+*
+* @param xVals
+*    The arguments of the interpolation points.
+* @param yVals
+*    The values of the interpolation points.
+* @returns
+*    Polynomial coefficients of the segments.
+*/
+export function computeLinearPolyCoefficients(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : Float64Array[] {
+   if (xVals.length != yVals.length) {
       throw new Error("Dimension mismatch.");
    }
-
-   if (x.length < 2) {
+   if (xVals.length < 2) {
       throw new Error("Number of points is too small.");
    }
-
-   // Number of intervals. The number of data points is n + 1.
-   const n = x.length - 1;
-
-   MathArrays_checkOrder(x);
-
-   // Slope of the lines between the datapoints.
-   const m = new Float64Array(n);
+   MathArrays_checkOrder(xVals);
+   const n = xVals.length - 1;                                       // number of segments
+   const segmentCoeffs = new Array(n);
    for (let i = 0; i < n; i++) {
-      m[i] = (y[i + 1] - y[i]) / (x[i + 1] - x[i]);
-   }
-
-   const polynomials: UniFunction[] = Array(n);
-   const coefficients = new Float64Array(2);
-   for (let i = 0; i < n; i++) {
-      coefficients[0] = y[i];
-      coefficients[1] = m[i];
-      polynomials[i] = createPolynomialFunction(coefficients);
-   }
-
-   return createPolynomialSplineFunction(x, polynomials);
+      const dx = xVals[i + 1] - xVals[i];
+      const dy = yVals[i + 1] - yVals[i];
+      const m = dy / dx;                                             // slope of the line between two data points
+      const c = new Float64Array(2);
+      c[0] = yVals[i];
+      c[1] = m;
+      segmentCoeffs[i] = trimPoly(c); }
+   return segmentCoeffs;
 }
 
 //--- Nearest neighbor ---------------------------------------------------------
 
 /**
-* Returns a nearest neighbor interpolating function for a data set.
+* Returns a nearest neighbor interpolating function for a dataset.
 *
-* @param xvals
-*    The arguments for the interpolation points.
-* @param yvals
-*    The values for the interpolation points.
-* @return
-*    A function which interpolates the data set.
+* @param xVals
+*    The arguments of the interpolation points.
+* @param yVals
+*    The values of the interpolation points.
+* @returns
+*    A function which interpolates the dataset.
 */
-export function createNearestNeighborInterpolator(xvals: Float64Array, yvals: Float64Array) : UniFunction {
+export function createNearestNeighborInterpolator(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : UniFunction {
 
-   const xvals2 = xvals.slice();                           // clone to break dependency on values passed from outside of this module
-   const yvals2 = yvals.slice();                           // clone to break dependency on values passed from outside of this module
+   const xVals2 = Float64Array.from(xVals);                          // clone to break dependency passed value
+   const yVals2 = Float64Array.from(yVals);                          // clone to break dependency passed value
 
-   const n = xvals2.length;
+   const n = xVals2.length;
 
-   if (n != yvals2.length) {
-      throw new Error("Dimension mismatch for xvals and yvals.");
+   if (n != yVals2.length) {
+      throw new Error("Dimension mismatch for xVals and yVals.");
    }
 
    if (n == 0) {
-      return function (_x: number) : number {
+      return function(_x: number) : number {
          return NaN;
       };
    }
 
    if (n == 1) {
-      return function (_x: number) : number {
-         return yvals2[0];
+      return function(_x: number) : number {
+         return yVals2[0];
       };
    }
 
-   MathArrays_checkOrder(xvals2);
+   MathArrays_checkOrder(xVals2);
 
-   return function(x: number) : number {                   // nearest neighbor interpolator for n >= 2
-      let i = Arrays_binarySearch(xvals2, x);
-      if (i >= 0) {                                        // exact knot x found
-         return yvals2[i];                                 // return y value of that knot
+   return function(x: number) : number {                             // nearest neighbor interpolator for n >= 2
+      let i = Arrays_binarySearch(xVals2, x);
+      if (i >= 0) {                                                  // exact knot x found
+         return yVals2[i];                                           // return y value of that knot
       }
-      i = -i - 1;                                          // logical position of x in xvals array
-      if (i == 0) {                                        // x is lower than x value of first knot
-         return yvals2[0];                                 // return y value of first knot
+      i = -i - 1;                                                    // logical position of x in xVals array
+      if (i == 0) {                                                  // x is lower than x value of first knot
+         return yVals2[0];                                           // return y value of first knot
       }
-      if (i >= n) {                                        // x is higher than x value of last knot
-         return yvals2[n - 1];                             // return y value of last knot
+      if (i >= n) {                                                  // x is higher than x value of last knot
+         return yVals2[n - 1];                                       // return y value of last knot
       }
-      const d = x - xvals2[i - 1];                         // distance of x from left knot
-      const w = xvals2[i] - xvals2[i - 1];                 // x distance between neighboring knots
-      return (d + d < w) ? yvals2[i - 1] : yvals2[i];      // return y value of left or right knot
+      const d = x - xVals2[i - 1];                                   // distance of x from left knot
+      const w = xVals2[i] - xVals2[i - 1];                           // x distance between neighboring knots
+      return (d + d < w) ? yVals2[i - 1] : yVals2[i];                // return y value of left or right knot
    };
 }
 
-//------------------------------------------------------------------------------
+//--- Polynomial routines ------------------------------------------------------
 
-/**
-* Constructs and returns a polynomial spline function from given segment
-* delimiters and interpolating polynomials.
-*
-* A polynomial spline function consists of a set of interpolating polynomials
-* and an ascending array of domain knot points, determining the intervals
-* over which the spline function is defined by the constituent polynomials.
-* The polynomials are assumed to have been computed to match the values of
-* another function at the knot points. The value consistency constraints are
-* not currently enforced, but are assumed to hold among the polynomials and
-* knot points passed.
-*
-* N.B.: The polynomials must be centered on the knot points to compute the
-* spline function values.
-* See below.
-*
-* The regular domain of the polynomial spline function is
-* [smallest knot, largest knot], but attempts to evaluate the function at
-* values outside of this range are allowed.
-*
-* The value of the polynomial spline function for an argument x is computed as
-* follows:
-*
-*  1. The knot array is searched to find the segment to which x belongs.
-*     If x is less than the smallest knot point or greater than the largest
-*     one, the nearest knot is used.
-*  2. Let i be the index of the largest knot point that is less than or equal
-*     to x. The value returned is:
-*     polynomials[i](x - knot[i])
-*
-* @param knots
-*    Spline segment interval delimiters.
-*    The values are copied to break any dependency on the original array
-*    passed to this module.
-* @param polynomials
-*    The polynomial functions that make up the spline. The first element
-*    determines the value of the spline over the first subinterval, the
-*    second over the second, etc. Spline function values are determined by
-*    evaluating these functions at (x - knot[i]), where i is the knot segment
-*    to which x belongs.
-* @return
-*    The polynomial spline function.
-*/
-function createPolynomialSplineFunction(knots: Float64Array, polynomials: UniFunction[]) : UniFunction {
-   const knots2 = knots.slice();                           // clone to break dependency on values passed from outside of this module
-   if (knots2.length < 2) {
-      throw new Error("Not enough knots.");
+// Evaluates the polynomial of the segment corresponding to the specified x value.
+function evaluatePolySegment(xVals: ArrayLike<number>, segmentCoeffs: ArrayLike<number>[], x: number) : number {
+   let i = Arrays_binarySearch(xVals, x);
+   if (i < 0) {
+      i = -i - 2;
    }
-   if (knots2.length - 1 != polynomials.length) {
-      throw new Error("Dimension mismatch.");
-   }
-   MathArrays_checkOrder(knots2);
-   return function(x: number) : number {
-      let i = Arrays_binarySearch(knots2, x);
-      if (i < 0) {
-         i = -i - 2;
-      }
-      i = Math.max(0, Math.min(i, polynomials.length - 1));
-      return polynomials[i](x - knots2[i]);
-   };
+   i = Math.max(0, Math.min(i, segmentCoeffs.length - 1));
+   return evaluatePoly(segmentCoeffs[i], x - xVals[i]);
 }
 
-//------------------------------------------------------------------------------
-
-/**
-* Constructs and returns a polynomial function with the given coefficients.
-*
-* The first element of the coefficients array is the constant term. Higher
-* degree coefficients follow in sequence. The degree of the resulting
-* polynomial is the index of the last non-zero element of the array, or 0 if
-* all elements are zero.
-*
-* The returned function uses Horner's Method evaluate the polynomial.
-* The computed value is: c[n] * x^n + ... + c[1] * x + c[0]
-*
-* @param c
-*    The coefficients of the polynomial, ordered by degree.
-*    c[0] is the constant term and c[i] is the coefficient of x^i.
-* @return
-*    The polynomial function.
-*/
-function createPolynomialFunction(c: Float64Array) : UniFunction {
-   const c2 = c.slice();                                   // clone to break dependency on passed array
-   let n = c2.length;
+// Evaluates the value of a polynomial.
+// c contains the polynomial coefficients in ascending order.
+function evaluatePoly(c: ArrayLike<number>, x: number) : number {
+   const n = c.length;
    if (n == 0) {
-      throw new Error("Empty polynomials coefficients array");
+      return 0; }
+   let v = c[n - 1];
+   for (let i = n - 2; i >= 0; i--) {
+      v = x * v + c[i];
    }
-   while (n > 1 && c2[n - 1] == 0) {
+   return v;
+}
+
+// Trims top order polynomial coefficients which are zero.
+function trimPoly(c: Float64Array) : Float64Array {
+   let n = c.length;
+   while (n > 1 && c[n - 1] == 0) {
       n--;
    }
-   return function (x: number) : number {
-      let v = c2[n - 1];
-      for (let i = n - 2; i >= 0; i--) {
-         v = x * v + c2[i];
-      }
-      return v;
-   };
+   return (n == c.length) ? c : c.subarray(0, n);
 }
 
 //--- Utility functions --------------------------------------------------------
 
 // Checks that the given array is sorted in strictly increasing order.
 // Corresponds to org.apache.commons.math3.util.MathArrays.checkOrder().
-function MathArrays_checkOrder(val: Float64Array) {
-   let previous = val[0];
-   const max = val.length;
-   for (let index = 1; index < max; index++) {
-      if (val[index] <= previous) {
+function MathArrays_checkOrder(a: ArrayLike<number>) {
+   for (let i = 1; i < a.length; i++) {
+      if (a[i] <= a[i - 1]) {
          throw new Error("Non-monotonic sequence exception.");
       }
-      previous = val[index];
    }
 }
 
@@ -489,24 +435,21 @@ function MathArrays_checkOrder(val: Float64Array) {
 // inserted into the array: the index of the first element greater than
 // the key, or a.length if all elements in the array are less than the
 // specified key.
-function Arrays_binarySearch(a: Float64Array, key: number) : number {
+function Arrays_binarySearch(a: ArrayLike<number>, key: number) : number {
    let low = 0;
    let high = a.length - 1;
    while (low <= high) {
-      const mid = (low + high) >>> 1;
+      const mid = (low + high) >>> 1;                                // tslint:disable-line:no-bitwise
       const midVal = a[mid];
       if (midVal < key) {
          low = mid + 1;
-      }
-      else if (midVal > key) {
+      } else if (midVal > key) {
          high = mid - 1;
-      }
-      else if (midVal == key) {
+      } else if (midVal == key) {
          return mid;
-      }
-      else {                                               // values might be NaN
+      } else {                                                       // values might be NaN
          throw new Error("Invalid number encountered in binary search.");
       }
    }
-   return -(low + 1);                                      // key not found
+   return -(low + 1);                                                // key not found
 }

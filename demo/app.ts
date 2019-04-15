@@ -2,7 +2,8 @@
 
 import * as FunctionCurveEditor from "function-curve-editor";
 
-var widget: FunctionCurveEditor.Widget;
+var widget:                      FunctionCurveEditor.Widget;
+var interpolationMethodElement:  HTMLSelectElement;
 
 const initialKnots: FunctionCurveEditor.Point[] = [
    {x:  50, y: 150},
@@ -26,7 +27,7 @@ const initialEditorState = <FunctionCurveEditor.EditorState>{
    extendedDomain: false,
    gridEnabled:    false };
 
-function toggleHelp() {
+function helpButtonElement_click() {
    const t = document.getElementById("helpText")!;
    if (t.classList.contains("hidden")) {
       t.classList.remove("hidden");
@@ -34,10 +35,28 @@ function toggleHelp() {
     else {
       t.classList.add("hidden"); }}
 
+function decodeInterpolationMethod (s: string) : FunctionCurveEditor.InterpolationMethod {
+   const i = FunctionCurveEditor.interpolationMethodNames.indexOf(s);
+   if (i < 0) {
+      throw new Error("Undefined interpolation method."); }
+   return i; }
+
+function interpolationMethodElement_change() {
+   const eState = widget.getEditorState();
+   eState.interpolationMethod = decodeInterpolationMethod(interpolationMethodElement.value);
+   widget.setEditorState(eState); }
+
+function widget_change() {
+   const eState = widget.getEditorState();
+   interpolationMethodElement.value = FunctionCurveEditor.interpolationMethodNames[eState.interpolationMethod]; }
+
 function startup() {
    const canvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById("functionCurveEditor");
    widget = new FunctionCurveEditor.Widget(canvas);
    widget.setEditorState(initialEditorState);
-   document.getElementById("helpButton")!.addEventListener("click", toggleHelp); }
+   widget.addEventListener("change", widget_change);
+   interpolationMethodElement = <HTMLSelectElement>document.getElementById("interpolationMethod")!;
+   interpolationMethodElement.addEventListener("change", interpolationMethodElement_change);
+   document.getElementById("helpButton")!.addEventListener("click", helpButtonElement_click); }
 
 document.addEventListener("DOMContentLoaded", startup);

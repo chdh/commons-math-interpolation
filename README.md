@@ -9,7 +9,7 @@ The following forms of interpolation are implemented:
 - [Linear interpolation](https://en.wikipedia.org/wiki/Linear_interpolation)
 - [Nearest neighbor interpolation](https://en.wikipedia.org/wiki/Nearest-neighbor_interpolation)
 
-The interpolators work on a data set of x/y points (knots).
+The interpolators work on a dataset of x/y points (knots).
 
-Visual demo of the Akima interpolation: http://www.source-code.biz/snippets/typescript/akima<br>
+Visual demo: http://www.source-code.biz/snippets/typescript/akima<br>
 NPM package: [commons-math-interpolation](https://www.npmjs.com/package/commons-math-interpolation)

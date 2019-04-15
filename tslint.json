@@ -3,6 +3,7 @@
       "await-promise": true,
       "ban-comma-operator": true,
       "curly": true,
+      "no-bitwise": true,
       "no-conditional-assignment": true,
       "no-construct": true,
       "no-duplicate-super": true,

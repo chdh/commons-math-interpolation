@@ -1,16 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
- <title>Demo for the Akima Spline Interpolator</title>
+ <title>Demo for the "commons-math-interpolation" package</title>
  <link rel="stylesheet" type="text/css" href="app.css">
  <script type="text/javascript" src="tempBuild/appBundle.js"></script>
 </head>
 
 <body>
 
-<h2>Akima Spline Interpolator</h2>
+<h2>Demo for the "commons-math-interpolation" package</h2>
 
-<canvas id="functionCurveEditor" tabindex="1">
+<div class="parmsBlock">
+ <label for="interpolationMethod">Interpolation:</label>
+ <select id="interpolationMethod">
+  <option value="akima">Akima cubic spline</option>
+  <option value="cubic">Natural cubic spline</option>
+  <option value="linear">Linear</option>
+  <option value="nearestNeighbor">Nearest neighbor</option>
+ </select>
+</div>
+
+<canvas id="functionCurveEditor" tabindex="-1">
  Error: Your browser does not support the HTML canvas element.
 </canvas>
 

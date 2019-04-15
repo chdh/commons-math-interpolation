@@ -5,6 +5,12 @@ body {
 .hidden {
    display: none; }
 
+.parmsBlock {
+   margin-bottom: 15px; }
+
+.parmsBlock label {
+   margin-right: 5px; }
+
 #functionCurveEditor {
    display: block;
    width: 800px;
