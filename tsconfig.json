@@ -1,5 +1,6 @@
 {
    "compilerOptions": {
+      "allowUnreachableCode": false,
       "declaration": true,
       "declarationDir": "dist",
       "lib": ["ES5"],
@@ -8,7 +9,8 @@
       "noImplicitReturns": true,
       "noUnusedLocals": true,
       "noUnusedParameters": true,
-      "outDir": "tempBuild",
+      "sourceMap": true,
+      "outDir": "dist",
       "removeComments": true,
       "strict": true,
       "target": "ES5"

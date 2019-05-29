@@ -1,4 +1,4 @@
-// Demo program for the AkimaSplineInterpolator class.
+// Demo program for the interpolation classes, based on the function curve editor.
 
 import * as FunctionCurveEditor from "function-curve-editor";
 
@@ -25,30 +25,37 @@ const initialEditorState = <FunctionCurveEditor.EditorState>{
    yMin:           0,
    yMax:           500,
    extendedDomain: false,
-   gridEnabled:    false };
+   gridEnabled:    false
+};
 
 function helpButtonElement_click() {
    const t = document.getElementById("helpText")!;
    if (t.classList.contains("hidden")) {
       t.classList.remove("hidden");
-      t.innerHTML = widget.getFormattedHelpText(); }
-    else {
-      t.classList.add("hidden"); }}
+      t.innerHTML = widget.getFormattedHelpText();
+   } else {
+      t.classList.add("hidden");
+   }
+}
 
-function decodeInterpolationMethod (s: string) : FunctionCurveEditor.InterpolationMethod {
+function decodeInterpolationMethod(s: string) : FunctionCurveEditor.InterpolationMethod {
    const i = FunctionCurveEditor.interpolationMethodNames.indexOf(s);
    if (i < 0) {
-      throw new Error("Undefined interpolation method."); }
-   return i; }
+      throw new Error("Undefined interpolation method.");
+   }
+   return i;
+}
 
 function interpolationMethodElement_change() {
    const eState = widget.getEditorState();
    eState.interpolationMethod = decodeInterpolationMethod(interpolationMethodElement.value);
-   widget.setEditorState(eState); }
+   widget.setEditorState(eState);
+}
 
 function widget_change() {
    const eState = widget.getEditorState();
-   interpolationMethodElement.value = FunctionCurveEditor.interpolationMethodNames[eState.interpolationMethod]; }
+   interpolationMethodElement.value = FunctionCurveEditor.interpolationMethodNames[eState.interpolationMethod];
+}
 
 function startup() {
    const canvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById("functionCurveEditor");
@@ -57,6 +64,7 @@ function startup() {
    widget.addEventListener("change", widget_change);
    interpolationMethodElement = <HTMLSelectElement>document.getElementById("interpolationMethod")!;
    interpolationMethodElement.addEventListener("change", interpolationMethodElement_change);
-   document.getElementById("helpButton")!.addEventListener("click", helpButtonElement_click); }
+   document.getElementById("helpButton")!.addEventListener("click", helpButtonElement_click);
+}
 
 document.addEventListener("DOMContentLoaded", startup);

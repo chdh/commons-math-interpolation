@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+ <link rel="stylesheet" href="app.css">
+ <script src="app.js"></script>
+ <title>LOESS local regression demo</title>
+</head>
+<body>
+
+<h1>LOESS &nbsp;&ndash;&nbsp; Local regression demo</h1>
+
+<script>
+ if (!window.Promise) {
+    document.write('<p style="color: red; font-size: 20px; font-weight: bold;">Sorry, your web browser is outdated and cannot run this application!</p>'); }
+</script>
+
+<div class="parmBlock">
+
+ <div class="parmHeading2">Points</div>
+ <div class="parmLine">
+  <label class="width1g" for="pointCount">Number of points:</label>
+  <input class="width1" id="pointCount" type="number" min="1" value="50" required>
+  <label class="width1g gap1" for="xMin">X minimum:</label>
+  <input class="width1" id="xMin" type="number" value="0" step="any" required>
+  <label class="width1g gap1" for="xMax">X maximum:</label>
+  <input class="width1" id="xMax" type="number" value="6.283" step="any" required>
+ </div>
+ <div class="parmLine">
+  <label class="width1g" for="xJitter" title="Standard deviation of x coordinate jitter for the points.">X jitter:</label>
+  <input class="width1" id="xJitter" type="number" min="0" value="0.05" step="any" required>
+  <label class="width1g gap1" for="yJitter" title="Standard deviation for y coordinate jitter for the points.">Y jitter:</label>
+  <input class="width1" id="yJitter" type="number" min="0" value="0.1" step="any" required>
+  <label class="width1g gap1" for="yJitterExp" title="Exponential boost factor for y jitter, used to generate outliers.">Y jitter exponent:</label>
+  <input class="width1" id="yJitterExp" type="number" value="2.5" step="any" required>
+ </div>
+
+ <div class="parmHeading2">LOESS</div>
+ <div class="parmLine">
+  <label class="width1g" for="bandwidthFraction" title="Fraction of points to be used for computing the local regression.">Bandwidth fraction:</label>
+  <input class="width1" id="bandwidthFraction" type="number" min="0" max="1" step="any" value="0.3" required>
+  <label class="width1g gap1" for="robustnessIters" title="Maximum number of (additional) robustness iterations. 0 for only a single iteration.">Rob. iterations:</label>
+  <input class="width1" id="robustnessIters" type="number" min="0" value="2" required>
+  <label class="width1g gap1" for="accuracy" title="Acceptable accuracy. If the median residual at a certain robustness iteration is less than this amount, no more iterations are done.">Accuracy:</label>
+  <input class="width1" id="accuracy" type="number" min="0" step="any" value="1E-12" required>
+ </div>
+ <div class="parmLine">
+  <label class="width1g" for="outlierDistanceFactor" title="Outlier distance relative to the median residual.">Outlier factor:</label>
+  <input class="width1" id="outlierDistanceFactor" type="number" min="1E-99" step="any" value="6" required>
+ </div>
+
+ <div class="parmHeading2">Interpolation</div>
+ <div class="parmLine">
+  <label class="width1g" for="minXDistance" title="Minimum point distance in x-direction.">Minimum distance:</label>
+  <input class="width1" id="minXDistance" type="number" min="1E-99" step="any" value="0.05" required>
+  <label class="width1g gap1" for="interpolationMethod">Interpolation:</label>
+  <select class="width1" id="interpolationMethod">
+   <option value="akima">Akima cubic spline</option>
+   <option value="cubic">Natural cubic spline</option>
+   <option value="linear">Linear</option>
+   <option value="nearestNeighbor">Nearest neighbor</option>
+  </select>
+ </div>
+
+</div>
+
+<div class="actionButtons">
+ <button id="updateButton">Update</button>
+ <button id="updateRegressionButton" disabled>Upd. regression</button>
+</div>
+
+<div id="diagInfo"></div>
+
+<canvas id="curveViewer" tabindex="-1"></canvas>
+
+<div class="footer">
+ Source code: <a href="https://github.com/chdh/commons-math-interpolation">github.com/chdh/commons-math-interpolation</a>
+</div>
+
+</body>
+</html>

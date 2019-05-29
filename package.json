@@ -1,15 +1,18 @@
 {
    "name": "commons-math-interpolation",
-   "version": "2.1.0",
+   "version": "2.2.0",
    "description": "A partial port of the Apache Commons Math Interpolation package, including Akima cubic spline interpolation.",
-   "types": "dist/CommonsMathInterpolation.d.ts",
-   "main": "dist/CommonsMathInterpolation.js",
-   "module": "dist/CommonsMathInterpolation.mjs",
+   "type": "module",
+   "types": "Index.d.ts",
+   "main": "Index.js",
    "keywords": [
       "math",
       "interpolation",
       "akima",
       "cubic spline",
+      "LOESS",
+      "LOWESS",
+      "local regression",
       "apache commons math"
    ],
    "license": "MIT",
@@ -18,15 +21,18 @@
    "contributors": [
       {
          "name": "Christian d'Heureuse",
-         "email": "chdh@inventec.ch"
+         "email": "chdh@inventec.ch",
+         "url": "http://www.source-code.biz"
       }
    ],
    "scripts": {
-      "build": "tsc && rollup -c"
+      "clean": "node build.js clean",
+      "build": "node build.js build",
+      "prepack": "node build.js verifyCurrentDirIsDist",
+      "doPack": "cd dist && npm pack",
+      "doPublish": "cd dist && npm publish"
    },
-   "files": [
-      "dist/CommonsMathInterpolation.d.ts",
-      "dist/CommonsMathInterpolation.js",
-      "dist/CommonsMathInterpolation.mjs"
-   ]
+   "devDependencies": {
+      "rimraf": "^2.6.3"
+   }
 }

@@ -1,6 +1,7 @@
 {
    "compilerOptions": {
       "allowUnreachableCode": false,
+      "baseUrl": "src",
       "lib": ["ES6", "DOM"],
       "module": "ES6",
       "moduleResolution": "node",
@@ -9,9 +10,12 @@
       "noUnusedLocals": true,
       "noUnusedParameters": true,
       "outDir": "tempBuild",
+      "paths": {
+         "commons-math-interpolation/*": ["../../dist/*"]
+      },
       "removeComments": true,
       "strict": true,
-      "target": "ES6"
+      "target": "ES2017"
    },
    "include": [
       "src/**/*"

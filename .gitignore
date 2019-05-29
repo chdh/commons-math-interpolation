@@ -1,4 +1,5 @@
 $$BackupControl.txt
+app.js
 build.bat
 dist
 node_modules

@@ -1,0 +1,93 @@
+*, *:before, *:after {
+   box-sizing: inherit; }
+
+html {
+   font-size: 14px;
+   box-sizing: border-box; }
+
+body, button, input, select, textarea {
+   font-family: Lato, sans-serif;
+   font-size: inherit;
+   line-height: 1.4375; }
+
+body {
+   margin: 20px; }
+
+H1 {
+   font-size: 20px; }
+
+a {
+   color: #07C;
+   text-decoration: none; }
+a:hover {
+   text-decoration: underline; }
+.pseudoButton,
+.miniPseudoButton {
+   color: #07C;
+   cursor: pointer; }
+.miniPseudoButton {
+   font-size: 12px; }
+
+div.footer {
+   margin-top: 8px;
+   font-size: 12px; }
+
+input[type="text"], input[type="number"] {
+   padding: 1px 2px; }
+
+input[type="number"]::-webkit-inner-spin-button {
+   -webkit-appearance: none; }
+input[type="number"] {
+   -moz-appearance: textfield; }
+input[type="text"]:invalid:not(:focus), input[type="number"]:invalid:not(:focus) {
+   box-shadow: 0 0 1px 1px #f00; }
+
+input[type="text"]:focus, input[type="number"]:focus, select:focus, canvas:focus {
+   outline: 1px auto #4D90FE; }
+
+.hidden {
+   display: none !important; }
+
+.parmBlock {
+   margin-bottom: 10px; }
+
+.parmLine {
+   display: flex;
+   align-items: baseline;
+   margin-top: 8px; }
+
+div.parmHeading2 {
+   margin-top: 10px;
+   font-size: 12px;
+   font-weight: bold; }
+
+.width1 {
+   width: 110px; }
+.width1g {
+   width: 130px; }
+label.gap1 {
+   margin-left: 20px; }
+
+label[title] {
+   text-decoration: underline dotted #aaa;
+   text-underline-position: under; }
+
+div.actionButtons {
+   display: flex;
+   align-items: center;
+   margin-top: 20px; }
+
+div.actionButtons button {
+   width: 110px;
+   padding: 4px 0px;
+   margin-right: 20px; }
+
+#diagInfo {
+   margin-top: 20px; }
+
+#curveViewer {
+   display: block;
+   width: 800px;
+   height: 400px;
+   margin-top: 20px;
+   border: 1px solid #888; }

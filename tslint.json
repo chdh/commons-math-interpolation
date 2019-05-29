@@ -15,7 +15,7 @@
       "no-invalid-this": [true, "check-function-in-method"],
       "no-misused-new": true,
       "no-parameter-reassignment": true,
-      "no-shadowed-variable": true,
+      "no-shadowed-variable": [true, {"temporalDeadZone": false}],
       "no-sparse-arrays": true,
       "no-switch-case-fall-through": true,
       "no-unbound-method": true,

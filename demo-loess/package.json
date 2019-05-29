@@ -1,9 +1,10 @@
 {
    "private": true,
    "dependencies": {
-      "function-curve-editor": "^1.0.7"
+      "function-curve-viewer": "^1.0.19"
    },
    "devDependencies": {
+      "rollup-plugin-alias": "^1.5.1",
       "rollup-plugin-node-resolve": "^5.0.0"
    },
    "scripts": {
