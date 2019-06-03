@@ -16,6 +16,7 @@ const initialKnots: FunctionCurveEditor.Point[] = [
    {x: 600, y: 250},
    {x: 650, y: 200},
    {x: 700, y: 180},
+   {x: 725, y: 120},
    {x: 750, y:  90} ];
 
 const initialEditorState = <FunctionCurveEditor.EditorState>{
@@ -38,23 +39,15 @@ function helpButtonElement_click() {
    }
 }
 
-function decodeInterpolationMethod(s: string) : FunctionCurveEditor.InterpolationMethod {
-   const i = FunctionCurveEditor.interpolationMethodNames.indexOf(s);
-   if (i < 0) {
-      throw new Error("Undefined interpolation method.");
-   }
-   return i;
-}
-
 function interpolationMethodElement_change() {
    const eState = widget.getEditorState();
-   eState.interpolationMethod = decodeInterpolationMethod(interpolationMethodElement.value);
+   eState.interpolationMethod = <FunctionCurveEditor.InterpolationMethod>interpolationMethodElement.value;
    widget.setEditorState(eState);
 }
 
 function widget_change() {
    const eState = widget.getEditorState();
-   interpolationMethodElement.value = FunctionCurveEditor.interpolationMethodNames[eState.interpolationMethod];
+   interpolationMethodElement.value = eState.interpolationMethod;
 }
 
 function startup() {

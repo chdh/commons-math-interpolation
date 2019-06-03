@@ -1,10 +1,10 @@
 {
    "private": true,
    "dependencies": {
-      "function-curve-editor": "^1.0.7"
+      "function-curve-editor": "^1.0.8"
    },
    "devDependencies": {
-      "rollup-plugin-node-resolve": "^5.0.0"
+      "rollup-plugin-node-resolve": "^5.0.1"
    },
    "scripts": {
       "build": "tsc && rollup -c"

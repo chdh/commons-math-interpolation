@@ -10,9 +10,9 @@ var curveViewerWidget:                 FunctionCurveViewer.Widget;
 var updateRegressionButtonElement:     HTMLButtonElement;
 var pointXVals:                        Float64Array;
 var pointYVals:                        Float64Array;
-var fitVals:                           Float64Array;
+var fitYVals:                          Float64Array;
 var robustnessWeights:                 Float64Array | undefined;
-var distanceFilter:                    boolean[];
+var knotFilter:                        boolean[];
 var xMin:                              number;
 var xMax:                              number;
 var xJitter:                           number;
@@ -64,9 +64,9 @@ function createPoints() {
    [pointXVals, pointYVals] = sortMulti([xVals, yVals]);
 }
 
-function formatDiagInfo (diagInfo: Loess.DiagInfo) : string {
+function formatDiagInfo (diagInfo: Loess.LoessInterpolatorDiagInfo) : string {
    return `
-      robustness iterations: ${diagInfo.robustnessIters},
+      Robustness iterations: ${diagInfo.robustnessIters},
       second last median residual: ${fmt(diagInfo.secondLastMedianResidual)},
       last median residual: ${fmt(diagInfo.lastMedianResidual)}`;
    function fmt(x: number | undefined) {
@@ -75,43 +75,23 @@ function formatDiagInfo (diagInfo: Loess.DiagInfo) : string {
 }
 
 function calculateRegression() {
-   const diagInfo = <Loess.DiagInfo>{};
-   const smoothParms: Loess.SmoothParms = {
+   const diagInfo = <Loess.LoessInterpolatorDiagInfo>{};
+   const parms: Loess.LoessInterpolatorParms = {
       xVals:                 pointXVals,
       yVals:                 pointYVals,
       bandwidthFraction:     DomUtils.getValueNum("bandwidthFraction"),
       robustnessIters:       DomUtils.getValueNum("robustnessIters"),
       accuracy:              DomUtils.getValueNum("accuracy"),
       outlierDistanceFactor: DomUtils.getValueNum("outlierDistanceFactor"),
+      interpolationMethod:   <Interpolation.InterpolationMethod>DomUtils.getValue("interpolationMethod"),
+      minXDistance:          DomUtils.getValueNum("minXDistance"),
       diagInfo
    };
-   fitVals = Loess.smooth(smoothParms);
+   curveFunction = Loess.createLoessInterpolator(parms);
    document.getElementById("diagInfo")!.textContent = formatDiagInfo(diagInfo);
    robustnessWeights = diagInfo.robustnessWeights;
-}
-
-function createDistanceFilter() {
-   const n = pointXVals.length;
-   distanceFilter = Array(n);
-   const minXDistance = DomUtils.getValueNum("minXDistance");
-   let prevX = -Infinity;
-   for (let i = 0; i < n; i++) {
-      const x = pointXVals[i];
-      if (x - prevX >= minXDistance) {
-         distanceFilter[i] = true;
-         prevX = x;
-      } else {
-         distanceFilter[i] = false;
-      }
-   }
-}
-
-function prepareInterpolation() {
-   createDistanceFilter();
-   const knotXVals = pointXVals.filter((_v, i: number) => distanceFilter[i]);
-   const knotYVals = fitVals.filter((_v, i: number) => distanceFilter[i]);
-   const interpolationMethod = <Interpolation.InterpolationMethod>DomUtils.getValue("interpolationMethod");
-   curveFunction = Interpolation.createInterpolatorWithFallback(interpolationMethod, knotXVals, knotYVals);
+   fitYVals          = diagInfo.fitYVals;
+   knotFilter        = diagInfo.knotFilter;
 }
 
 function drawPoint (pctx: FunctionCurveViewer.CustomPaintContext, x: number, y: number, r: number, color: string) {
@@ -135,7 +115,9 @@ function updateCurveViewer() {
          drawPoint(pctx, pointXVals[i], pointYVals[i], 4, (robustnessWeight == 0) ? "#9900CC" : "#0066FF");
       }
       for (let i = 0; i < n; i++) {
-         drawPoint(pctx, pointXVals[i], fitVals[i], 2.5, distanceFilter[i] ? "#00AA00" : "#CC5500");
+         if (!isNaN(fitYVals[i])) {
+            drawPoint(pctx, pointXVals[i], fitYVals[i], 2.5, knotFilter[i] ? "#00AA00" : "#CC5500");
+         }
       }
    }
    const viewerState: FunctionCurveViewer.ViewerState = {
@@ -158,7 +140,6 @@ function updateAll() {
 
 function updateRegression() {
    calculateRegression();
-   prepareInterpolation();
    updateCurveViewer();
 }
 

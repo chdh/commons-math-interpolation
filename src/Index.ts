@@ -8,9 +8,10 @@ import {createAkimaSplineInterpolator} from "./Akima";
 import {createCubicSplineInterpolator} from "./Cubic";
 import {createLinearInterpolator} from "./Linear";
 import {createNearestNeighborInterpolator} from "./NearestNeighbor";
+import {createLoessInterpolator} from "./Loess";
 import {UniFunction} from "./Utils";
 
-export type InterpolationMethod = "akima" | "cubic" | "linear" | "nearestNeighbor";
+export type InterpolationMethod = "akima" | "cubic" | "linear" | "nearestNeighbor" | "loess";
 
 export function createInterpolator (interpolationMethod: InterpolationMethod, xVals: ArrayLike<number>, yVals: ArrayLike<number>) : UniFunction {
    switch (interpolationMethod) {
@@ -18,6 +19,7 @@ export function createInterpolator (interpolationMethod: InterpolationMethod, xV
       case "cubic":           return createCubicSplineInterpolator(xVals, yVals);
       case "linear":          return createLinearInterpolator(xVals, yVals);
       case "nearestNeighbor": return createNearestNeighborInterpolator(xVals, yVals);
+      case "loess":           return createLoessInterpolator({xVals, yVals});
       default:                throw new Error(`Unknown interpolation method "${interpolationMethod}".`);
    }
 }
