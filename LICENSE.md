@@ -1,6 +1,7 @@
 MIT License
 
-Copyright (c) 2017 [these people](https://github.com/chdh/commons-math-interpolation/graphs/contributors)
+Copyright 2017-2019 [these people](https://github.com/chdh/commons-math-interpolation/graphs/contributors)<br>
+Copyright 2001-2019 The Apache Software Foundation
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
