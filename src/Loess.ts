@@ -11,7 +11,7 @@ export interface SmoothDiagInfo {                                    // diagnost
    robustnessWeights?:                 Float64Array;                 // reobustness weights used in last iteration round
 }
 
-export interface LoessInterpolatorDiagInfo extends SmoothDiagInfo {
+export interface LoessInterpolatorDiagInfo extends SmoothDiagInfo {  // diagnostics info for createLoessInterpolator()
    fitYVals:                           Float64Array;                 // smoothed y values of the points
    knotFilter:                         boolean[];                    // true=point is used as a knot, false=point is ignored for interpolation
    knotXVals:                          Float64Array;                 // x values of the knots
@@ -29,7 +29,7 @@ export interface SmoothParms {                                       // paramete
    diagInfo?:                          SmoothDiagInfo;               // optional object to return diagnostics info
 }
 
-export interface LoessInterpolatorParms extends SmoothParms {
+export interface LoessInterpolatorParms extends SmoothParms {        // parameters for createLoessInterpolator()
    interpolationMethod?:               InterpolationMethod;          // interpolation method for connecting the smoothed points
    minXDistance?:                      number;                       // minimum point distance in x-direction
    diagInfo?:                          LoessInterpolatorDiagInfo;    // optional object to return diagnostics info

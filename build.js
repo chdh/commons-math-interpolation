@@ -1,8 +1,8 @@
 "use strict";
 
-const ChildProcess = require("child_process");
-const Fs           = require("fs");
-const rimrafSync   = require("rimraf").sync;
+import ChildProcess from "child_process";
+import Fs from "fs";
+import Rimraf from "rimraf";
 
 class BuildError extends Error {};
 
@@ -26,14 +26,14 @@ function main2() {
    let cmd = (argv.length > 2) ? argv[2] : "build";
    switch (cmd) {
       case "clean": {
-         rimrafSync("dist");
+         Rimraf.sync("dist");
          break;
       }
       case "build": {
-         rimrafSync("dist");
+         Rimraf.sync("dist");
          shell("tsc");
          shell("tslint");
-         copyToDist([".npmignore", "LICENSE.md", "README.md", "package.json", "build.js"]);
+         copyToDist([".npmignore", "LICENSE.md", "README.md", "NOTICE.md", "package.json", "build.js"]);
          console.log("Build completed.");
          break;
       }
