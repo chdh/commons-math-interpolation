@@ -1,6 +1,6 @@
 {
    "name": "commons-math-interpolation",
-   "version": "2.2.1",
+   "version": "2.2.2",
    "description": "A partial port of the Apache Commons Math Interpolation package, including Akima cubic spline interpolation and LOESS/LOWESS local regression.",
    "type": "module",
    "types": "Index.d.ts",
@@ -31,8 +31,5 @@
       "prepack": "node build.js verifyCurrentDirIsDist",
       "doPack": "cd dist && npm pack",
       "doPublish": "cd dist && npm publish"
-   },
-   "devDependencies": {
-      "rimraf": "^3.0.2"
    }
 }

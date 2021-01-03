@@ -1,9 +1,6 @@
-export async function catchError(f: Function, ...args: any[]) {
+export function catchError(f: Function, ...args: any[]) {
    try {
-      const r = f(...args);
-      if (r instanceof Promise) {
-         await r;
-      }
+      f(...args);
    } catch (error) {
       console.log(error);
       alert("Error: " + error);

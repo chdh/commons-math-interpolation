@@ -4,8 +4,8 @@
       "function-curve-viewer": "^1.0.19"
    },
    "devDependencies": {
-      "rollup-plugin-alias": "^1.5.2",
-      "rollup-plugin-node-resolve": "^5.0.1"
+      "@rollup/plugin-alias": "^3.1.1",
+      "@rollup/plugin-node-resolve": "^11.0.1"
    },
    "scripts": {
       "build": "tsc && rollup -c"

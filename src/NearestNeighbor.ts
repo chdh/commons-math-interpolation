@@ -12,8 +12,8 @@ import {UniFunction, checkStrictlyIncreasing, binarySearch} from "./Utils";
 */
 export function createNearestNeighborInterpolator(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : UniFunction {
 
-   const xVals2 = Float64Array.from(xVals);                          // clone to break dependency passed value
-   const yVals2 = Float64Array.from(yVals);                          // clone to break dependency passed value
+   const xVals2 = Float64Array.from(xVals);                          // clone to break dependency on passed value
+   const yVals2 = Float64Array.from(yVals);                          // clone to break dependency on passed value
 
    const n = xVals2.length;
 

@@ -251,7 +251,7 @@ function calculateRobustnessWeights(residuals: Float64Array, outlierDistance: nu
 
 function combineWeights(w1: ArrayLike<number> | undefined, w2: ArrayLike<number> | undefined) : ArrayLike<number> | undefined {
    if (!w1 || !w2) {
-      return w1 || w2; }
+      return w1 ?? w2; }
    const n = w1.length;
    const a = new Float64Array(n);
    for (let i = 0; i < n; i++) {

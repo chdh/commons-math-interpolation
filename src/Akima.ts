@@ -1,7 +1,6 @@
 import {UniFunction, checkStrictlyIncreasing, trimPoly, evaluatePolySegment} from "./Utils";
 
-// @ts-ignore: Number.EPSILON is not defined in ES5.
-const EPSILON = Number.EPSILON || 2.2204460492503130808472633361816E-16;
+const EPSILON = Number.EPSILON;
 
 /**
 * Returns a function that computes a cubic spline interpolation for the data
@@ -149,7 +148,7 @@ function computeHermitePolyCoefficients(xVals: ArrayLike<number>, yVals: ArrayLi
    }
    const n = xVals.length - 1;                                       // number of segments
 
-   const segmentCoeffs = new Array(n);
+   const segmentCoeffs : Float64Array[] = new Array(n);
    for (let i = 0; i < n; i++) {
       const w = xVals[i + 1] - xVals[i];
       const w2 = w * w;

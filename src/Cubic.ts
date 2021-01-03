@@ -89,7 +89,7 @@ export function computeCubicPolyCoefficients(xVals: ArrayLike<number>, yVals: Ar
       d[i] = (c[i + 1] - c[i]) / (3 * dx);
    }
 
-   const segmentCoeffs = new Array(n);
+   const segmentCoeffs : Float64Array[] = new Array(n);
    for (let i = 0; i < n; i++) {
       const coeffs = new Float64Array(4);
       coeffs[0] = yVals[i];

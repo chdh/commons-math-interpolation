@@ -35,7 +35,7 @@ export function computeLinearPolyCoefficients(xVals: ArrayLike<number>, yVals: A
    }
    checkStrictlyIncreasing(xVals);
    const n = xVals.length - 1;                                       // number of segments
-   const segmentCoeffs = new Array(n);
+   const segmentCoeffs : Float64Array[] = new Array(n);
    for (let i = 0; i < n; i++) {
       const dx = xVals[i + 1] - xVals[i];
       const dy = yVals[i + 1] - yVals[i];

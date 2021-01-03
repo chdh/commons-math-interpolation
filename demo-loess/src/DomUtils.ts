@@ -9,7 +9,7 @@ export function getInputElement(elementId: string) : HTMLInputElement {
 }
 
 function getInputElementLabelText(e: HTMLInputElement) : string {
-   let s = (e.labels && e.labels.length > 0) ? e.labels[0].textContent || "" : "";
+   let s = (e.labels && e.labels.length > 0) ? e.labels[0].textContent ?? "" : "";
    if (s.length > 0 && s[s.length - 1] == ":") {
       s = s.substring(0, s.length - 1);
    }
