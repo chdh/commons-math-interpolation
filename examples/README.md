@@ -11,5 +11,4 @@ The flag [`--experimental-specifier-resolution=node`](https://nodejs.org/api/esm
 is necessary as long as there is no better solution for the
 [problem](https://github.com/microsoft/TypeScript/issues/16577) that TypeScript does not generate file extensions
 in the import statements.
-Another solution would be to use [Rollup](https://rollupjs.org) or a similar tool.
-Using Rollup is recommended for using the `commons-math-interpolation` package in a client-side web application.
+Another solution would be to use [Rollup](https://rollupjs.org), [Webpack](https://webpack.js.org) or a similar tool.
