@@ -1,15 +1,16 @@
-export {createAkimaSplineInterpolator, computeAkimaPolyCoefficients} from "./Akima";
-export {createCubicSplineInterpolator, computeCubicPolyCoefficients} from "./Cubic";
-export {createLinearInterpolator, computeLinearPolyCoefficients} from "./Linear";
-export {createNearestNeighborInterpolator} from "./NearestNeighbor";
-export {UniFunction} from "./Utils";
+export {createAkimaSplineInterpolator, computeAkimaPolyCoefficients} from "./Akima.js";
+export {createCubicSplineInterpolator, computeCubicPolyCoefficients} from "./Cubic.js";
+export {createLinearInterpolator, computeLinearPolyCoefficients} from "./Linear.js";
+export {createNearestNeighborInterpolator} from "./NearestNeighbor.js";
+export {createLoessInterpolator} from "./Loess.js";
+export {UniFunction} from "./Utils.js";
 
-import {createAkimaSplineInterpolator} from "./Akima";
-import {createCubicSplineInterpolator} from "./Cubic";
-import {createLinearInterpolator} from "./Linear";
-import {createNearestNeighborInterpolator} from "./NearestNeighbor";
-import {createLoessInterpolator} from "./Loess";
-import {UniFunction} from "./Utils";
+import {createAkimaSplineInterpolator} from "./Akima.js";
+import {createCubicSplineInterpolator} from "./Cubic.js";
+import {createLinearInterpolator} from "./Linear.js";
+import {createNearestNeighborInterpolator} from "./NearestNeighbor.js";
+import {createLoessInterpolator} from "./Loess.js";
+import {UniFunction} from "./Utils.js";
 
 export type InterpolationMethod = "akima" | "cubic" | "linear" | "nearestNeighbor" | "loess";
 

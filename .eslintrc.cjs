@@ -75,13 +75,13 @@ const rules = {
    "no-var": "off",                                     // @typescript-eslint/recommended switches this on
 
    // Filenames plugin rules:
-   "filenames/match-regex": ["error", "^[A-Z]" ]
+   "filename-rules/match": ["error", /^[A-Z]/ ]
    };
 
 module.exports = {
    plugins: [
       "@typescript-eslint",
-      "filenames" ],
+      "filename-rules" ],
    parser: "@typescript-eslint/parser",
    parserOptions: {
       project: "./tsconfig.json",

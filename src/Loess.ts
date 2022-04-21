@@ -1,8 +1,8 @@
 // Implements the LOESS/LOVESS algorithm for local regression.
 // see https://en.wikipedia.org/wiki/Local_regression
 
-import {UniFunction, checkMonotonicallyIncreasing, checkFinite, getMedian} from "./Utils";
-import {InterpolationMethod, createInterpolatorWithFallback} from "./Index";
+import {UniFunction, checkMonotonicallyIncreasing, checkFinite, getMedian} from "./Utils.js";
+import {InterpolationMethod, createInterpolatorWithFallback} from "./Index.js";
 
 export interface SmoothDiagInfo {                                    // diagnostics info for smooth()
    robustnessIters:                    number;                       // number of performed additional robustness iterations
