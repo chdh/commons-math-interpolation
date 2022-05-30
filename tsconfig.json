@@ -4,7 +4,7 @@
       "declaration": true,
       "declarationDir": "dist",
       "lib": ["ES6"],
-      "module": "node12",
+      "module": "node16",
       "noFallthroughCasesInSwitch": true,
       "noImplicitOverride": true,
       "noImplicitReturns": true,
