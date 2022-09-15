@@ -7,12 +7,7 @@ const namingOptions = [
   {
       selector: "variable",
       modifiers: ["const"],
-      format: ["camelCase", "UPPER_CASE"],
-      leadingUnderscore: "allow" },
-  {
-      selector: "function",
-      filter: "^[a-z].*_",                                 // allow function names with "_"
-      format: null },
+      format: ["camelCase", "UPPER_CASE"] },
   {
       selector: "typeLike",
       format: ["PascalCase"] }];
@@ -38,7 +33,7 @@ const rules = {
    "prefer-const": "error",
    "prefer-promise-reject-errors": "error",
    "require-atomic-updates": "error",
-   "require-await": "warn",
+
    // Modifications of default rules:
    "no-constant-condition": ["error", {checkLoops: false }],
 
@@ -59,8 +54,10 @@ const rules = {
    "@typescript-eslint/prefer-includes": "warn",
    "@typescript-eslint/prefer-nullish-coalescing": "warn",
    "@typescript-eslint/prefer-optional-chain": "warn",
+   "@typescript-eslint/require-await": "error",                                      "require-await": "off",
    "@typescript-eslint/semi": "error",                                               "semi": "off",
    "@typescript-eslint/switch-exhaustiveness-check": "error",
+
    // Modifications of default rules:
    "@typescript-eslint/ban-types": ["error", {extendDefaults: true, types: {Function: false}}],
    "@typescript-eslint/explicit-module-boundary-types": "off",
