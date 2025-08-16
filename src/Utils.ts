@@ -80,7 +80,7 @@ export function binarySearch(a: ArrayLike<number>, key: number) : number {
    let low = 0;
    let high = a.length - 1;
    while (low <= high) {
-      const mid = (low + high) >>> 1;                                // tslint:disable-line:no-bitwise
+      const mid = (low + high) >>> 1;
       const midVal = a[mid];
       if (midVal < key) {
          low = mid + 1;
@@ -109,4 +109,10 @@ export function getMedian(a: ArrayLike<number>) : number {
    } else {
       return a2[m];
    }
+}
+
+// Wraps the function `f` within another function that returns `NaN` when the argument value
+// lies outside the function's domain range `xMin ... xMax`.
+export function createDomainRestrictedUniFunction(f: UniFunction, xMin: number, xMax: number) : UniFunction {
+   return (x: number) => (x >= xMin && x <= xMax) ? f(x) : NaN;
 }

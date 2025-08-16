@@ -1,4 +1,4 @@
-import {UniFunction, checkStrictlyIncreasing, trimPoly, evaluatePolySegment} from "./Utils.js";
+import {UniFunction, checkStrictlyIncreasing, trimPoly, evaluatePolySegment} from "./Utils.ts";
 
 const EPSILON = Number.EPSILON;
 

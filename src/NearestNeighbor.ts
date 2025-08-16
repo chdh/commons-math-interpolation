@@ -1,4 +1,4 @@
-import {UniFunction, checkStrictlyIncreasing, binarySearch} from "./Utils.js";
+import {UniFunction, checkStrictlyIncreasing, binarySearch} from "./Utils.ts";
 
 /**
 * Returns a nearest neighbor interpolating function for a dataset.

@@ -3,7 +3,8 @@
       "allowUnreachableCode": false,
       "declaration": true,
       "declarationDir": "dist",
-      "lib": ["ES6"],
+      "forceConsistentCasingInFileNames": true,
+      "lib": ["ES2020"],
       "module": "node16",
       "noFallthroughCasesInSwitch": true,
       "noImplicitOverride": true,
@@ -12,11 +13,10 @@
       "noUnusedParameters": true,
       "outDir": "dist",
       "removeComments": true,
-      "sourceMap": true,
+      "rewriteRelativeImportExtensions": true,
+      "rootDir": "src",
       "strict": true,
-      "target": "ES6"
+      "target": "ES2020"
    },
-   "include": [
-      "src/**/*"
-   ]
+   "include": ["src"]
 }

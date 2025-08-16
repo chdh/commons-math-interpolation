@@ -1,6 +1,6 @@
 {
    "name": "commons-math-interpolation",
-   "version": "2.2.3",
+   "version": "2.2.4",
    "description": "A partial port of the Apache Commons Math Interpolation package, including Akima cubic spline interpolation and LOESS/LOWESS local regression.",
    "type": "module",
    "types": "Index.d.ts",
@@ -17,7 +17,10 @@
    ],
    "license": "MIT",
    "homepage": "http://www.source-code.biz/snippets/typescript/akima",
-   "repository": "github:chdh/commons-math-interpolation",
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/chdh/commons-math-interpolation.git"
+   },
    "contributors": [
       {
          "name": "Christian d'Heureuse",

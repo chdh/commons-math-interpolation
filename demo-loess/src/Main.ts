@@ -120,7 +120,7 @@ function updateCurveViewer() {
          }
       }
    }
-   const viewerState: FunctionCurveViewer.ViewerState = {
+   const viewerState: Partial<FunctionCurveViewer.ViewerState> = {
       viewerFunction:        curveFunction,
       xMin:                  xMin - xJitter * 2 - 0.1,
       xMax:                  xMax + xJitter * 2 + 0.1,

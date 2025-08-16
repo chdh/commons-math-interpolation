@@ -1,4 +1,4 @@
-import {UniFunction, checkStrictlyIncreasing, trimPoly, evaluatePolySegment} from "./Utils.js";
+import {UniFunction, checkStrictlyIncreasing, trimPoly, evaluatePolySegment} from "./Utils.ts";
 
 /**
 * Returns a function that computes a natural (also known as "free", "unclamped")
