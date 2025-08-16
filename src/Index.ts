@@ -15,7 +15,7 @@ import {UniFunction, createDomainRestrictedUniFunction} from "./Utils.ts";
 export type InterpolationMethod = "akima" | "cubic" | "linear" | "nearestNeighbor" | "loess";
 
 export interface InterpolatorOptions {
-   domainRestricted:         boolean;                      // true = the interpolator function shall return NaN when the argument value is outside the range xMin .. xMax
+   domainRestricted?:        boolean;                      // true = the interpolator function shall return NaN when the argument value is outside the range xMin .. xMax
 }
 
 function createInterpolator2 (interpolationMethod: InterpolationMethod, xVals: ArrayLike<number>, yVals: ArrayLike<number>) : UniFunction {
