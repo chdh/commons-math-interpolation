@@ -32,41 +32,77 @@ div.footer {
    margin-top: 8px;
    font-size: 12px; }
 
-input[type="text"], input[type="number"] {
+input[type="text"],
+input[type="number"] {
    padding: 1px 2px; }
 
 input[type="number"]::-webkit-inner-spin-button {
    -webkit-appearance: none; }
 input[type="number"] {
    -moz-appearance: textfield; }
-input[type="text"]:invalid:not(:focus), input[type="number"]:invalid:not(:focus) {
+input[type="text"]:invalid:not(:focus),
+input[type="number"]:invalid:not(:focus) {
    box-shadow: 0 0 1px 1px #f00; }
 
-input[type="text"]:focus, input[type="number"]:focus, select:focus, canvas:focus {
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus,
+canvas:focus {
    outline: 1px auto #4D90FE; }
 
 .hidden {
    display: none !important; }
 
 .parmBlock {
-   margin-bottom: 10px; }
-
-.parmLine {
+   margin-top: 8px;
+   margin-bottom: 10px;
+   max-width: 800px;
    display: flex;
+   flex-wrap: wrap;
    align-items: baseline;
-   margin-top: 8px; }
+   column-gap: 25px;
+   row-gap: 8px; }
+
+.parmField {
+   position: relative;
+   display: flex;
+   align-items: baseline; }
+
+.fieldInfoButton {
+   position: absolute;
+   right: -19px;
+   top: -3px;
+   width: 12px;
+   height: 12px;
+   box-sizing: content-box;
+   padding: 4px;
+   z-index: 1;
+   cursor: pointer;
+   background-repeat: no-repeat;
+   background-position: center;
+   background-size: 12px 12px;
+   background-image: url('data:image/svg+xml,<svg version="1.1" viewBox="2 2 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M10 9.25 a.75.75 0 0 1 .75.75 v3.333 a.75.75 0 0 1-1.5 0 V10 a.75.75 0 0 1 .75-.75 M10 5.833 a.959.959 0 1 1-.001 1.917 A.959.959 0 0 1 10 5.833" fill="%2305c"/><path d="m10 2.085a7.915 7.915 0 1 1 0 15.83 7.915 7.915 0 0 1 0-15.83m0 1.33a6.585 6.585 0 1 0 0 13.17 6.585 6.585 0 0 0 0-13.17" clip-rule="evenodd" fill="%2305c" fill-rule="evenodd"/></svg>'); }
+
+.fieldInfoText {
+   position: absolute;
+   top: 30px;
+   left: -13px;
+   min-width: 273px;
+   z-index: 2;
+   border: 1px solid #AAAAAA;
+   border-radius: 10px;
+   background-color: #FFFFDD;
+   padding: 10px 12px; }
 
 div.parmHeading2 {
    margin-top: 10px;
    font-size: 12px;
    font-weight: bold; }
 
-.width1 {
+.w-inp {
    width: 110px; }
-.width1g {
+.w-lbl {
    width: 130px; }
-label.gap1 {
-   margin-left: 20px; }
 
 label[title] {
    text-decoration: underline dotted #aaa;

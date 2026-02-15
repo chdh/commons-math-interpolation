@@ -151,6 +151,7 @@ function init() {
    updateRegressionButtonElement = <HTMLButtonElement>document.getElementById("updateRegressionButton")!;
    updateRegressionButtonElement.addEventListener("click", () => Utils.catchError(updateRegression));
    updateAll();
+   DomUtils.prepareFieldInfo();
 }
 
 function startup() {

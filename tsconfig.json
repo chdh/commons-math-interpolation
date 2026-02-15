@@ -3,6 +3,7 @@
       "allowUnreachableCode": false,
       "declaration": true,
       "declarationDir": "dist",
+      "declarationMap": true,
       "forceConsistentCasingInFileNames": true,
       "lib": ["ES2020"],
       "module": "node16",
@@ -15,6 +16,7 @@
       "removeComments": true,
       "rewriteRelativeImportExtensions": true,
       "rootDir": "src",
+      "sourceMap": true,
       "strict": true,
       "target": "ES2020"
    },
