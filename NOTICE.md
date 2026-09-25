@@ -1,4 +1,4 @@
-Copyright 2017-2019 [these people](https://github.com/chdh/commons-math-interpolation/graphs/contributors)
+Copyright 2017-2026 Christian d'Heureuse, chdh@inventec.ch
 
 Copyright 2001-2019 The Apache Software Foundation
 

@@ -1,6 +1,6 @@
 MIT License
 
-Copyright 2017-2019 [these people](https://github.com/chdh/commons-math-interpolation/graphs/contributors)<br>
+Copyright 2017-2026 Christian d'Heureuse, chdh@inventec.ch<br>
 Copyright 2001-2019 The Apache Software Foundation
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

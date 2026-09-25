@@ -2,11 +2,9 @@
    "compilerOptions": {
       "allowUnreachableCode": false,
       "declaration": true,
-      "declarationDir": "dist",
-      "declarationMap": true,
       "forceConsistentCasingInFileNames": true,
       "lib": ["ES2020"],
-      "module": "node16",
+      "module": "node18",
       "noFallthroughCasesInSwitch": true,
       "noImplicitOverride": true,
       "noImplicitReturns": true,

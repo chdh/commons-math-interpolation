@@ -1,14 +1,31 @@
-import {UniFunction, checkStrictlyIncreasing, trimPoly, evaluatePolySegment} from "./Utils.ts";
+/**
+* Linear interpolation.
+*
+* The interpolating function is piecewise linear, i.e. the interpolation points are connected by straight lines.
+*
+* @module
+*/
+
+import {UniFunction, assert, checkStrictlyIncreasing, trimPoly, evaluatePolySegment} from "./Utils.ts";
 
 /**
 * Returns a linear interpolating function for a dataset.
 *
+* Arguments outside the range of the interpolation points are extrapolated with the straight line
+* of the first or last segment. If the argument is `NaN`, the function returns `NaN`.
+*
+* The passed arrays are not referenced by the returned function.
+*
 * @param xVals
 *    The arguments of the interpolation points, in strictly increasing order.
+*    The values must be finite.
 * @param yVals
 *    The values of the interpolation points.
 * @returns
 *    A function which interpolates the dataset.
+* @throws Error
+*    If `xVals` and `yVals` have different lengths, if there are fewer than 2 points,
+*    or if `xVals` contains non-finite values or is not strictly increasing.
 */
 export function createLinearInterpolator(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : UniFunction {
    const segmentCoeffs = computeLinearPolyCoefficients(xVals, yVals);
@@ -21,18 +38,22 @@ export function createLinearInterpolator(xVals: ArrayLike<number>, yVals: ArrayL
 *
 * @param xVals
 *    The arguments of the interpolation points, in strictly increasing order.
+*    The values must be finite.
 * @param yVals
 *    The values of the interpolation points.
 * @returns
-*    Polynomial coefficients of the segments.
+*    The polynomial coefficients of the `xVals.length - 1` segments.
+*    Element `i` contains the coefficients of the segment from `xVals[i]` to `xVals[i + 1]`,
+*    in ascending order (`[yVals[i], slope]`) and relative to `xVals[i]`.
+*    A zero slope is trimmed, so a segment may contain only one coefficient.
+*    The result can be evaluated with {@link evaluatePolySegment}.
+* @throws Error
+*    If `xVals` and `yVals` have different lengths, if there are fewer than 2 points,
+*    or if `xVals` contains non-finite values or is not strictly increasing.
 */
 export function computeLinearPolyCoefficients(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : Float64Array[] {
-   if (xVals.length != yVals.length) {
-      throw new Error("Dimension mismatch.");
-   }
-   if (xVals.length < 2) {
-      throw new Error("Number of points is too small.");
-   }
+   assert(xVals.length == yVals.length, "Dimension mismatch for xVals and yVals.");
+   assert(xVals.length >= 2, "Number of points is too small.");
    checkStrictlyIncreasing(xVals);
    const n = xVals.length - 1;                                       // number of segments
    const segmentCoeffs : Float64Array[] = new Array(n);

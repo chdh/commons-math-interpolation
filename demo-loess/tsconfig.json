@@ -1,22 +1,19 @@
 {
    "compilerOptions": {
       "allowUnreachableCode": false,
-      "baseUrl": "src",
-      "lib": ["ES2020", "DOM", "DOM.Iterable"],
+      "forceConsistentCasingInFileNames": true,
+      "lib": ["ES2020", "DOM"],
       "module": "ES2020",
       "moduleResolution": "bundler",
       "noFallthroughCasesInSwitch": true,
-      "noImplicitAny": true,
       "noImplicitOverride": true,
       "noImplicitReturns": true,
-      "noImplicitThis": true,
       "noUnusedLocals": true,
       "noUnusedParameters": true,
       "outDir": "tempBuild",
-      "paths": {
-         "commons-math-interpolation/*": ["../../dist/*"]
-      },
       "removeComments": true,
+      "rewriteRelativeImportExtensions": true,
+      "rootDir": "src",
       "strict": true,
       "target": "ES2020"
    },

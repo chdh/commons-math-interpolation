@@ -1,14 +1,38 @@
-import {UniFunction, checkStrictlyIncreasing, binarySearch} from "./Utils.ts";
+/**
+* Nearest neighbor interpolation.
+*
+* The interpolating function is a step function that returns the y value of the interpolation point
+* whose x value is nearest to the argument.
+*
+* @module
+*/
+
+import {UniFunction, assert, checkStrictlyIncreasing, binarySearch} from "./Utils.ts";
 
 /**
 * Returns a nearest neighbor interpolating function for a dataset.
 *
+* The returned function returns the y value of the interpolation point nearest to its argument.
+* If the argument is exactly in the middle between two points, the y value of the right point is returned.
+* Arguments below the first point return the y value of the first point, and arguments above the last point
+* return the y value of the last point. If the argument is `NaN`, `NaN` is returned.
+*
+* Unlike the other interpolation methods, this method also accepts fewer than two points:
+* With no points, the returned function always returns `NaN`.
+* With a single point, it returns the y value of that point for all arguments except `NaN`.
+*
+* The passed arrays are copied, so the returned function does not depend on them.
+*
 * @param xVals
 *    The arguments of the interpolation points, in strictly increasing order.
+*    The values must be finite.
 * @param yVals
 *    The values of the interpolation points.
 * @returns
 *    A function which interpolates the dataset.
+* @throws Error
+*    If `xVals` and `yVals` have different lengths, or if `xVals` contains non-finite values
+*    or is not strictly increasing.
 */
 export function createNearestNeighborInterpolator(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : UniFunction {
 
@@ -16,10 +40,7 @@ export function createNearestNeighborInterpolator(xVals: ArrayLike<number>, yVal
    const yVals2 = Float64Array.from(yVals);                          // clone to break dependency on passed value
 
    const n = xVals2.length;
-
-   if (n != yVals2.length) {
-      throw new Error("Dimension mismatch for xVals and yVals.");
-   }
+   assert(n == yVals2.length, "Dimension mismatch for xVals and yVals.");
 
    if (n == 0) {
       return function(_x: number) : number {
@@ -27,15 +48,12 @@ export function createNearestNeighborInterpolator(xVals: ArrayLike<number>, yVal
       };
    }
 
-   if (n == 1) {
-      return function(_x: number) : number {
-         return yVals2[0];
-      };
-   }
-
    checkStrictlyIncreasing(xVals2);
 
-   return function(x: number) : number {                             // nearest neighbor interpolator for n >= 2
+   return function(x: number) : number {                             // nearest neighbor interpolator for n >= 1
+      if (Number.isNaN(x)) {
+         return NaN;
+      }
       let i = binarySearch(xVals2, x);
       if (i >= 0) {                                                  // exact knot x found
          return yVals2[i];                                           // return y value of that knot

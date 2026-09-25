@@ -1,10 +1,10 @@
 // Demo program for the LOESS module.
 
-import * as DomUtils from "./DomUtils";
-import * as Utils from "./Utils";
 import * as FunctionCurveViewer from "function-curve-viewer";
 import * as Loess from "commons-math-interpolation/Loess";
-import * as Interpolation from "commons-math-interpolation/Index";
+import {BasicInterpolationMethod} from "commons-math-interpolation";
+import * as DomUtils from "./DomUtils.ts";
+import * as Utils from "./Utils.ts";
 
 var curveViewerWidget:                 FunctionCurveViewer.Widget;
 var updateRegressionButtonElement:     HTMLButtonElement;
@@ -83,7 +83,7 @@ function calculateRegression() {
       robustnessIters:       DomUtils.getValueNum("robustnessIters"),
       accuracy:              DomUtils.getValueNum("accuracy"),
       outlierDistanceFactor: DomUtils.getValueNum("outlierDistanceFactor"),
-      interpolationMethod:   <Interpolation.InterpolationMethod>DomUtils.getValue("interpolationMethod"),
+      interpolationMethod:   <BasicInterpolationMethod>DomUtils.getValue("interpolationMethod"),
       minXDistance:          DomUtils.getValueNum("minXDistance"),
       diagInfo
    };
@@ -95,6 +95,9 @@ function calculateRegression() {
 }
 
 function drawPoint (pctx: FunctionCurveViewer.CustomPaintContext, x: number, y: number, r: number, color: string) {
+   if (pctx.pass != 2) {
+      return;
+   }
    const ctx = pctx.ctx;
    const cx = pctx.mapLogicalToCanvasXCoordinate(x);
    const cy = pctx.mapLogicalToCanvasYCoordinate(y);

@@ -1,23 +1,30 @@
-import {UniFunction, checkStrictlyIncreasing, trimPoly, evaluatePolySegment} from "./Utils.ts";
+/**
+* Natural cubic spline interpolation.
+*
+* @module
+*/
+
+import {UniFunction, assert, checkStrictlyIncreasing, trimPoly, evaluatePolySegment} from "./Utils.ts";
 
 /**
-* Returns a function that computes a natural (also known as "free", "unclamped")
-* cubic spline interpolation for the dataset.
+* Returns a natural (also known as "free" or "unclamped") cubic spline interpolating function for a dataset.
 *
-* Returns a polynomial spline function consisting of n cubic polynomials,
-* defined over the subintervals determined by the x values,
-* x[0] < x[1] < ... < x[n-1]. The x values are referred to as "knot points".
-*
-* The value of the polynomial spline function at a point x is computed by
-* finding the segment to which x belongs and computing the value of the
-* corresponding polynomial at x - x[i] where i is the index of the segment.
+* For `n` interpolation points with x values `x[0] < x[1] < ... < x[n-1]` (the "knot points"),
+* the spline function consists of `n - 1` cubic polynomials, one for each segment `x[i] ... x[i+1]`.
+* The value of the spline function at a point `x` is computed by finding the segment `i` to which `x` belongs
+* and evaluating the polynomial of that segment at `x - x[i]`.
 *
 * The interpolating polynomials satisfy:
-*  1. The value of the polynomial spline function at each of the input x values
-*     equals the corresponding y value.
+*  1. The value of the spline function at each of the input x values equals the corresponding y value.
 *  2. Adjacent polynomials are equal through two derivatives at the knot points
 *     (i.e., adjacent polynomials "match up" at the knot points, as do their
 *     first and second derivatives).
+*  3. The second derivative is zero at the first and the last knot point ("natural" boundary condition).
+*
+* Arguments outside the range of the knot points are extrapolated with the cubic polynomial
+* of the first or last segment. If the argument is `NaN`, the function returns `NaN`.
+*
+* The passed arrays are not referenced by the returned function.
 *
 * The cubic spline interpolation algorithm implemented is as described in
 * R.L. Burden, J.D. Faires, Numerical Analysis, 4th Ed., 1989, PWS-Kent,
@@ -25,10 +32,14 @@ import {UniFunction, checkStrictlyIncreasing, trimPoly, evaluatePolySegment} fro
 *
 * @param xVals
 *    The arguments of the interpolation points, in strictly increasing order.
-* @param yVal
+*    The values must be finite.
+* @param yVals
 *    The values of the interpolation points.
 * @returns
 *    A function which interpolates the dataset.
+* @throws Error
+*    If `xVals` and `yVals` have different lengths, if there are fewer than 3 points,
+*    or if `xVals` contains non-finite values or is not strictly increasing.
 */
 export function createCubicSplineInterpolator(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : UniFunction {
    const segmentCoeffs = computeCubicPolyCoefficients(xVals, yVals);
@@ -42,18 +53,22 @@ export function createCubicSplineInterpolator(xVals: ArrayLike<number>, yVals: A
 *
 * @param xVals
 *    The arguments of the interpolation points, in strictly increasing order.
+*    The values must be finite.
 * @param yVals
 *    The values of the interpolation points.
 * @returns
-*    Polynomial coefficients of the segments.
+*    The polynomial coefficients of the `xVals.length - 1` segments.
+*    Element `i` contains the coefficients of the segment from `xVals[i]` to `xVals[i + 1]`,
+*    in ascending order (up to 4 coefficients) and relative to `xVals[i]`.
+*    Zero coefficients of the highest orders are trimmed.
+*    The result can be evaluated with {@link evaluatePolySegment}.
+* @throws Error
+*    If `xVals` and `yVals` have different lengths, if there are fewer than 3 points,
+*    or if `xVals` contains non-finite values or is not strictly increasing.
 */
 export function computeCubicPolyCoefficients(xVals: ArrayLike<number>, yVals: ArrayLike<number>) : Float64Array[] {
-   if (xVals.length != yVals.length) {
-      throw new Error("Dimension mismatch.");
-   }
-   if (xVals.length < 3) {
-      throw new Error("Number of points is too small.");
-   }
+   assert(xVals.length == yVals.length, "Dimension mismatch for xVals and yVals.");
+   assert(xVals.length >= 3, "Number of points is too small.");
    checkStrictlyIncreasing(xVals);
    const n = xVals.length - 1;                                       // number of segments
 

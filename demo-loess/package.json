@@ -2,7 +2,8 @@
    "private": true,
    "type": "module",
    "dependencies": {
-      "function-curve-viewer": "^1.0.19"
+      "function-curve-viewer": "^1.0.19",
+      "commons-math-interpolation": "^2.2.5"
    },
    "scripts": {
       "build": "tsc && rollup -c"

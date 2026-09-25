@@ -1,8 +1,12 @@
 $$BackupControl.txt
+*.bat
+AGENTS.md
+apiDoc/
 app.js
-build.bat
-dist
-node_modules
+CLAUDE.md
+dist/
+node_modules/
 package-lock.json
-tempBuild
+tempBuild/
 todo.txt
+wiki/
