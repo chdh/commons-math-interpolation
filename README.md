@@ -1,4 +1,4 @@
-# commons-math-interpolation
+# Commons Math Interpolation – Akima, Cubic Spline and LOESS for TypeScript
 
 This package is a partial TypeScript port of the interpolation classes of the
 [Apache Commons Math library](https://commons.apache.org/proper/commons-math/), with some extensions.
@@ -24,12 +24,12 @@ NPM package: [commons-math-interpolation](https://www.npmjs.com/package/commons-
 
 An example program is in the [examples](examples) directory.
 
-For Akima:
+Example for Akima interpolation:
 
 ```js
 import {createAkimaSplineInterpolator} from "commons-math-interpolation";
 
-const f = createAkimaSplineInterpolator([0, 1, 3, 4, 7], [2, 5, 4, 1, 3]);
+const f = createAkimaSplineInterpolator([0, 1, 3, 4], [2, 5, 4, 1]);
 console.log(f(2.5));
 ```
 

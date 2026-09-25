@@ -1,5 +1,5 @@
 {
-   "name": "commons-math-interpolation",
+   "name": "Commons Math Interpolation – Akima, Cubic Spline and LOESS for TypeScript",
    "version": "2.2.5",
    "description": "Akima cubic spline, natural cubic spline, linear and nearest neighbor interpolation, and LOESS/LOWESS local regression. A partial TypeScript port of the Apache Commons Math interpolation classes.",
    "type": "module",
@@ -36,7 +36,7 @@
       "apache commons math"
    ],
    "license": "MIT",
-   "homepage": "https://www.source-code.biz/snippets/typescript/akima",
+   "homepage": "https://github.com/chdh/commons-math-interpolation",
    "repository": {
       "type": "git",
       "url": "git+https://github.com/chdh/commons-math-interpolation.git"
